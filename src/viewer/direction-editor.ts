@@ -123,6 +123,33 @@ function optionOf(direction: Direction, current: Direction): HTMLSpanElement {
 }
 
 /**
+ * 画面に見えている、最初のかたまりの枠を探す。
+ * @returns 見えている枠のうち、文書の順で最初のもの。見えている枠がなければ、文書の最初の枠
+ */
+function firstVisibleBlock(): HTMLElement | undefined {
+  const frames = [
+    ...document.querySelectorAll<HTMLElement>(`.${DIRECTION_LAYER_CLASS} .${BLOCK_CLASS}`),
+  ];
+  const isVisible = (frame: HTMLElement): boolean => {
+    // 紙面は、バーの下のスクロールする枠の中に見えている
+    const area = frame.closest('.pdfViewer')?.parentElement?.getBoundingClientRect() ?? {
+      top: 0,
+      left: 0,
+      bottom: window.innerHeight,
+      right: window.innerWidth,
+    };
+    const rect = frame.getBoundingClientRect();
+    return (
+      rect.bottom > area.top &&
+      rect.top < area.bottom &&
+      rect.right > area.left &&
+      rect.left < area.right
+    );
+  };
+  return frames.find(isVisible) ?? frames[0];
+}
+
+/**
  * 向きを直す部品を作る。
  * @param options 作り方
  * @returns 向きを直す部品
@@ -271,7 +298,8 @@ export function createDirectionEditor(options: DirectionEditorOptions): Directio
       const target = isToggleFocused
         ? frame?.querySelector<HTMLElement>(`.${TOGGLE_CLASS}`)
         : frame;
-      target?.focus();
+      // 作り直したページが画面の外にあっても、見ている場所は動かさない
+      target?.focus({ preventScroll: true });
     }
   };
 
@@ -280,7 +308,9 @@ export function createDirectionEditor(options: DirectionEditorOptions): Directio
       isActive = true;
       document.addEventListener('pointerdown', handlePointerDown);
       for (const pageNumber of options.pages.shownPages()) build(pageNumber);
-      document.querySelector<HTMLElement>(`.${DIRECTION_LAYER_CLASS} .${BLOCK_CLASS}`)?.focus();
+      // 画面に見えている最初のかたまりに焦点を移す。見ている場所は動かさない
+      //（文書の最初のかたまりに移すと、1ページめまで戻ってしまう）
+      firstVisibleBlock()?.focus({ preventScroll: true });
     },
     exit() {
       isActive = false;

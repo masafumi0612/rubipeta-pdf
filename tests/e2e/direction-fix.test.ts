@@ -474,3 +474,36 @@ for (const file of [UNMARKED_VERTICAL, MIXED, MIXED_LAYOUT]) {
     }
   });
 }
+
+/** 2ページの縦書きの物語 */
+const TWO_PAGES = 'vertical-story.pdf';
+
+for (const entry of ['ボタン', '右クリックのメニュー'] as const) {
+  test(`2ページめを見ているときに${entry}から入ったとき、1ページめに戻らず、2ページめのかたまりに移る`, async ({
+    page,
+    extensionId,
+  }) => {
+    await openFromFile(page, extensionId, TWO_PAGES);
+    await waitForRuby(page);
+    await page.getByRole('textbox', { name: 'ページ番号' }).fill('2');
+    await page.keyboard.press('Enter');
+    const secondPage = page.locator('.page[data-page-number="2"]');
+    await expect(secondPage.locator('.ruby-layer > span').first()).toBeAttached({
+      timeout: RUBY_TIMEOUT_MS,
+    });
+    const container = page.locator('#viewer-container');
+    const before = await container.evaluate((element) => element.scrollTop);
+
+    if (entry === 'ボタン') {
+      await directionButton(page).click();
+    } else {
+      await secondPage.click({ button: 'right' });
+      await page.getByRole('menuitem', { name: 'ルビの向きを直す…' }).click();
+    }
+
+    await expect(page.locator('.bar--editing')).toBeVisible();
+    await expect(secondPage.locator('.direction-block').first()).toBeFocused();
+    expect(await container.evaluate((element) => element.scrollTop)).toBeCloseTo(before, 0);
+    await expect(page.getByRole('textbox', { name: 'ページ番号' })).toHaveValue('2');
+  });
+}
