@@ -27,6 +27,14 @@ import {
 } from '@/viewer/navigation';
 import { createPageLayouts } from '@/viewer/page-layout';
 import { createPageMenu } from '@/viewer/page-menu';
+import {
+  isNearVisible,
+  RUBY_PAGES_AROUND,
+  trimFarPages,
+  type TrimmablePageView,
+  type VisibleRange,
+  visibleRangeOf,
+} from '@/viewer/page-window';
 import { createPrintNotice, isPrintShortcut } from '@/viewer/print-notice';
 import { createReadingFixDialog } from '@/viewer/reading-fix-dialog';
 import { rubyAmountLabel } from '@/viewer/ruby-amount';
@@ -58,6 +66,8 @@ const ASSET_BASE = location.origin;
 
 /** 始めに設定を読むのを待つ時間の上限（ミリ秒）。過ぎたら既定で始め、PDF を出すのを止めない */
 const SETTINGS_TIMEOUT_MS = 1000;
+/** スクロールが止まってから、遠いページを片づけるまで待つ時間（ミリ秒） */
+const WINDOW_DELAY_MS = 300;
 
 const log = createLogger('viewer');
 
@@ -210,6 +220,14 @@ const pageLayouts = createPageLayouts({
     rubyExport.handleLayoutChange();
   },
 });
+/**
+ * 見えているページの範囲を引く（pdf.js の内部の _getVisiblePages を使う。型の定義では object なので形を足す）
+ * @returns 範囲。分からなければ undefined
+ */
+function visibleRange(): VisibleRange | undefined {
+  const visible = viewer._getVisiblePages() as { views?: readonly { id: number }[] };
+  return visibleRangeOf((visible.views ?? []).map((view) => view.id));
+}
 const rubyPages = createRubyPages({
   layouts: pageLayouts,
   // pdf.js の型ではページの表示が any なので、使うところだけの形として受け取る
@@ -220,6 +238,7 @@ const rubyPages = createRubyPages({
   onPageShown: (pageNumber) => {
     directionEditor.refreshPage(pageNumber);
   },
+  isRubyPage: (pageNumber) => isNearVisible(pageNumber, visibleRange(), RUBY_PAGES_AROUND),
 });
 const directionEditor = createDirectionEditor({
   layouts: pageLayouts,
@@ -520,6 +539,23 @@ eventBus.on('scalechanging', ({ scale }: { scale: number }) => {
 });
 eventBus.on('pagerender', (event: PageRenderEvent) => {
   rubyPages.handlePageRender(event);
+});
+// スクロールなどで見えているページが変わったら、少し待ってから、遠いページを片づけ、
+// ルビの層を作るページを合わせ直す（page-window.ts）。続けてスクロールしている間は、まとめて1回にする
+let windowTimer: ReturnType<typeof setTimeout> | undefined;
+eventBus.on('updateviewarea', () => {
+  clearTimeout(windowTimer);
+  windowTimer = setTimeout(() => {
+    const range = visibleRange();
+    trimFarPages(
+      range,
+      viewer.pagesCount,
+      (pageNumber) => viewer.getPageView(pageNumber - 1) as TrimmablePageView | undefined,
+    );
+    rubyPages.syncLayers().catch((error: unknown) => {
+      log.error('ルビの層を合わせ直す途中で予想外の失敗がありました', error);
+    });
+  }, WINDOW_DELAY_MS);
 });
 // 拡大・回転で描き直したときも来るので、そのたびにルビの層を合わせ直す
 eventBus.on('pagerendered', (event: PageRenderEvent) => {

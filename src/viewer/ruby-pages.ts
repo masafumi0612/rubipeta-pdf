@@ -17,6 +17,9 @@ import { invertMatrix, type Matrix, multiplyMatrix, toMatrix } from './transform
 import { textPage, uprightFrame } from './upright';
 import { storedUserDictionary, type UserDictionaryFeed } from './user-dictionary-feed';
 
+/** pdf.js のページの描き方の状態のうち、描き終えたことを表す値（RenderingStates.FINISHED） */
+const RENDERING_FINISHED = 3;
+
 /** ページを描き終えてから、ルビの層を出すまでの時間を測る名前（performance.measure） */
 export const RUBY_LAYER_MEASURE = 'yomigana-pdf:ruby-layer';
 
@@ -28,6 +31,8 @@ export interface RubyPageView {
   readonly canvas: unknown;
   /** 今の表示の大きさと向き */
   readonly viewport: PageViewport;
+  /** 描き方の状態（pdf.js の RenderingStates。FINISHED が 3） */
+  readonly renderingState?: number;
   /** Canvas の画素と CSS の画素の比 */
   readonly outputScale?: { readonly sx: number; readonly sy: number } | undefined;
   /** ページ */
@@ -70,6 +75,12 @@ export interface RubyPagesOptions {
    * @param pageNumber ページ番号（1 から）
    */
   readonly onPageShown?: (pageNumber: number) => void;
+  /**
+   * ルビの層を作るページか（見えているページの近くだけに作る。page-window.ts）。既定はすべてのページ
+   * @param pageNumber ページ番号（1 から）
+   * @returns 作るなら true
+   */
+  readonly isRubyPage?: (pageNumber: number) => boolean;
 }
 
 /** ページごとにルビの層を重ねる部品 */
@@ -86,6 +97,11 @@ export interface RubyPages {
   handlePageRendered(event: PageRenderEvent): Promise<void>;
   /** 読みを出せなかったページの読みを、問い合わせ直してルビの層を出す */
   retryFailed(): Promise<void>;
+  /**
+   * 見えているページが変わったときに呼ぶ。ルビの層を作るページから外れたページの層を外し、
+   * 入ったページ（描き終えていて層がないもの）に層を作る
+   */
+  syncLayers(): Promise<void>;
   /**
    * ページに出しているルビを引く。
    * @param pageNumber ページ番号（1 から）
@@ -153,6 +169,7 @@ export function createRubyPages(options: RubyPagesOptions): RubyPages {
   };
   applyStyle(layouts.settings.rubyStyle);
   let entries = new Map<number, PageEntry>();
+  const isRubyPage = (pageNumber: number): boolean => options.isRubyPage?.(pageNumber) ?? true;
 
   const entryOf = (pageNumber: number): PageEntry => {
     let entry = entries.get(pageNumber);
@@ -252,6 +269,12 @@ export function createRubyPages(options: RubyPagesOptions): RubyPages {
       if (data === undefined || !isWanted()) return;
       const resolved = await layouts.resolve(event.pageNumber, data, drawn, isWanted);
       if (resolved === undefined || !isWanted()) return;
+      // 見えているページから遠いページには、層を作らない（近づいたら syncLayers で作る）
+      if (!isRubyPage(event.pageNumber)) {
+        entry.layer?.remove();
+        entry.layer = undefined;
+        return;
+      }
       showLayer(event.pageNumber, view, entry);
       performance.measure(RUBY_LAYER_MEASURE, {
         start: renderedAt,
@@ -299,6 +322,28 @@ export function createRubyPages(options: RubyPagesOptions): RubyPages {
         layouts.failedPages().map(async (pageNumber) => {
           const view = options.getPageView(pageNumber);
           if (view !== undefined) await this.handlePageRendered({ source: view, pageNumber });
+        }),
+      );
+    },
+
+    async syncLayers() {
+      const toShow: number[] = [];
+      for (const [pageNumber, entry] of entries) {
+        if (!isRubyPage(pageNumber)) {
+          entry.layer?.remove();
+          entry.layer = undefined;
+          continue;
+        }
+        const view = options.getPageView(pageNumber);
+        const isRendered = view?.renderingState === RENDERING_FINISHED;
+        if (isRendered && entry.layer?.isConnected !== true && entry.watching === undefined) {
+          toShow.push(pageNumber);
+        }
+      }
+      await Promise.all(
+        toShow.map(async (pageNumber) => {
+          const view = options.getPageView(pageNumber);
+          if (view !== undefined) await rubyPages.handlePageRendered({ source: view, pageNumber });
         }),
       );
     },
