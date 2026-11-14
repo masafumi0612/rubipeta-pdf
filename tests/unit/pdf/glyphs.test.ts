@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { normalizeGlyph, toRuns, verticalSlots } from '@/pdf/glyphs';
+import { horizontalSlots, normalizeGlyph, toRuns, verticalSlots } from '@/pdf/glyphs';
 
 import { contentOf, horizontalItem, SIZE, unmarkedColumn, verticalItem } from './make-items';
 
@@ -157,5 +157,117 @@ describe('toRuns の縦書きの片の字間', () => {
       ['い', 484, 474],
       ['う', 474, 464],
     ]);
+  });
+});
+
+describe('toRuns の重ねて描いた片', () => {
+  /**
+   * ランの字をつなぐ。
+   * @param items 片
+   * @returns 字をつないだ文字列（ランの順）
+   */
+  function textOf(items: Parameters<typeof contentOf>[0]): string {
+    return toRuns(contentOf(items))
+      .map((run) => run.text)
+      .join('');
+  }
+
+  it('同じ片が同じ場所に2つあるとき、1つだけ残す', () => {
+    const item = horizontalItem('整数', 100, 500);
+    expect(textOf([item, { ...item }])).toBe('整数');
+  });
+
+  it('片の一部だけが同じ場所にもう1つあるとき、一部の片を除く（一部の片が先でも）', () => {
+    const whole = horizontalItem('再編後の学区', 100, 500);
+    const part = { ...horizontalItem('編後', 110, 500), width: 21 };
+    expect(textOf([part, whole])).toBe('再編後の学区');
+    expect(textOf([whole, part])).toBe('再編後の学区');
+  });
+
+  it('縦書きの片の一部が同じ場所にもう1つあるとき、一部の片を除く', () => {
+    const whole = verticalItem('教科書', 100, 500);
+    const part = verticalItem('科書', 100, 490);
+    expect(textOf([whole, part])).toBe('教科書');
+  });
+
+  it('同じ字でも、別の行・別の場所・大きさの違う片のときは、除かない', () => {
+    const whole = horizontalItem('整数と整数', 100, 500);
+    expect(textOf([whole, horizontalItem('整数', 100, 480)])).toBe('整数と整数整数');
+    expect(textOf([whole, horizontalItem('整数', 200, 500)])).toBe('整数と整数整数');
+    expect(textOf([whole, horizontalItem('整数', 100, 500, 7)])).toBe('整数と整数整数');
+  });
+
+  it('同じ場所でも、字が違う片のときは、除かない', () => {
+    expect(textOf([horizontalItem('整数', 100, 500), horizontalItem('小数', 100, 500)])).toBe(
+      '整数小数',
+    );
+  });
+});
+
+describe('horizontalSlots', () => {
+  it('全角の字だけのとき、等分する', () => {
+    expect(horizontalSlots(['あ', 'い'], 24, 10)).toEqual([
+      [0, 12],
+      [12, 24],
+    ]);
+  });
+
+  it('半角の字と空白があるとき、半角は半字ぶん、全角は1字ぶん取り、空白が残りを分けあう', () => {
+    expect(horizontalSlots(['1', '.', ' ', 'ア', 'イ'], 35, 10)).toEqual([
+      [0, 5],
+      [5, 10],
+      [10, 15],
+      [15, 25],
+      [25, 35],
+    ]);
+  });
+
+  it('空白がなく半角の字が混じるとき、見積もりの幅の比で分ける', () => {
+    expect(horizontalSlots(['A', 'あ'], 12, 10)).toEqual([
+      [0, 4],
+      [4, 12],
+    ]);
+  });
+
+  it('字が見積もりより詰まっていて残りがないとき、空白は場所を取らない', () => {
+    expect(horizontalSlots(['A', ' ', 'あ'], 12, 10)).toEqual([
+      [0, 4],
+      [4, 4],
+      [4, 12],
+    ]);
+  });
+});
+
+describe('toRuns の横書きの片の字の幅', () => {
+  it('半角の数字が混じる片のとき、後ろの字も本当の位置に近くなる', () => {
+    const item = { ...horizontalItem('令和8年', 100, 500), width: 35 };
+    const [run] = toRuns(contentOf([item]));
+    expect(run?.glyphs[3]?.rect.x1).toBeCloseTo(125);
+    expect(run?.glyphs[3]?.rect.x2).toBeCloseTo(135);
+  });
+});
+
+describe('toRuns の文字の対応表のないフォント', () => {
+  const garbled = { fontName: 'garbled' };
+
+  it('字の番号がそのまま文字になったフォントのとき、そのフォントの片を除く（短い片や、本物の漢字になった片も）', () => {
+    const runs = toRuns(
+      contentOf([
+        horizontalItem('本文の字です', 100, 500),
+        { ...horizontalItem('䝅䝇䝔䝮䜢', 100, 480), ...garbled },
+        { ...horizontalItem('足', 100, 460), ...garbled },
+      ]),
+    );
+    expect(runs.map((run) => run.text)).toEqual(['本文の字です']);
+  });
+
+  it('まず出ない字が少しだけ混じるとき、除かない', () => {
+    const runs = toRuns(contentOf([horizontalItem('㐂という字のある長い文章です', 100, 500)]));
+    expect(runs.map((run) => run.text)).toEqual(['㐂という字のある長い文章です']);
+  });
+
+  it('部首の字で書かれたフォントのとき、除かない', () => {
+    const runs = toRuns(contentOf([horizontalItem('⽇本⼈', 100, 500)]));
+    expect(runs.map((run) => run.text)).toEqual(['⽇本⼈']);
   });
 });

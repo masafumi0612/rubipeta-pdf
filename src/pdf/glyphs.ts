@@ -52,6 +52,10 @@ const SKIPPED_CHAR = /^[\s\p{Cc}\p{Cf}]$/u;
  * 1字ぶんの場所を取らせず、残りの長さを分けあう空きとして扱う（全角の空白は1字ぶん）
  */
 const GAP_CHAR = /^ $/u;
+/** 半角の字（英数字・記号・半角の片仮名）。横書きの片で、およそ半字ぶんの幅と見積もる */
+const HALF_WIDTH_CHAR = /^[!-~｡-ﾟ]$/u;
+/** 半角の字の幅の見積もり（字） */
+const HALF_WIDTH_EM = 0.5;
 /** pdf.js が縦書きのフォントの片に付ける向き */
 const TOP_TO_BOTTOM = 'ttb';
 /** 回っているかを見る、変換の行列の傾きの下限（回した横書きの字は扱わない） */
@@ -68,6 +72,20 @@ const CHAIN_STEP_MAX_EM = 1.3;
 const CHAIN_SIZE_RATIO = 1.25;
 /** 縦書きの並びと見なす、続く片の数の下限 */
 const MIN_CHAIN_LENGTH = 2;
+/** 重ねて描いた片と見なす、行と交わる向きの位置（横書きは基準線、縦書きは列の中心）のずれの上限（字） */
+const OVERDRAWN_CROSS_EM = 0.2;
+/** 重ねて描いた片と見なす、ほかの片の端からはみ出してよい長さ（字） */
+const OVERDRAWN_REACH_EM = 0.5;
+/** 重ねて描いた片と見なす字の大きさの比の上限 */
+const OVERDRAWN_SIZE_RATIO = 1.1;
+/**
+ * 日本語の PDF にまず出ない字（ギリシャ・キリル文字より後の言語の字、CJK 拡張 A）。
+ * 文字の対応表のないフォントでは、フォントの中の字の番号がそのまま文字になり、この範囲の字が多く出る。
+ * 部首の字（U+2F00〜）は、正しい文字の PDF でも使われるので入れない
+ */
+const UNEXPECTED_CHAR = /[Ԁ-῿Ⰰ-ⷿ㐀-䶿]/u;
+/** 文字の対応表のないフォントと見なす、まず出ない字の割合の下限 */
+const GARBLED_FONT_RATIO = 0.3;
 
 /** 字にする前の1つの片 */
 interface Piece {
@@ -77,6 +95,22 @@ interface Piece {
   readonly chars: readonly string[];
   /** 捨てない字の数 */
   readonly visible: number;
+  /** 捨てない字をつないだ文字列 */
+  readonly text: string;
+  /** 片の区間と位置 */
+  readonly extent: Extent;
+}
+
+/** 片の、字の並ぶ向きの区間と、行と交わる向きの位置 */
+interface Extent {
+  /** 字の並ぶ向きの始まり */
+  readonly start: number;
+  /** 字の並ぶ向きの終わり */
+  readonly end: number;
+  /** 行と交わる向きの位置 */
+  readonly cross: number;
+  /** 字の大きさ */
+  readonly size: number;
 }
 
 /**
@@ -99,6 +133,84 @@ function isTextItem(item: PdfTextItem | PdfMarkedContent): item is PdfTextItem {
 }
 
 /**
+ * 片の区間と位置。縦書きの片の x は列の中心、y は上の端。横書きの片の x は左の端、y は基準線。
+ * @param item 片
+ * @param isMarked 縦書きの印があるか
+ * @returns 区間と位置
+ */
+function extentOf(item: PdfTextItem, isMarked: boolean): Extent {
+  const [a = 0, b = 0, c = 0, d = 0, x = 0, y = 0] = item.transform;
+  const size = Math.max(Math.hypot(a, b), Math.hypot(c, d));
+  return isMarked
+    ? { start: -y, end: -y + item.height, cross: x, size }
+    : { start: x, end: x + item.width, cross: y, size };
+}
+
+/**
+ * 片が、ほかの片と同じ字を同じ場所に重ねて描いたものか。
+ * 白い縁取りや太字に見せる重ね描きでは、同じ片がもう1つあるか、片の一部だけがもう1つある。
+ * 同じ向き・同じ大きさで、ほかの片の区間の中にあり、字がほかの片の字の一部なら、重ねて描いたものと見なす。
+ * 同じ字の片が2つあるときは、先の片を残す。
+ * @param piece 見る片
+ * @param other ほかの片
+ * @param isOtherFirst ほかの片が先にあるか
+ * @returns 重ねて描いたものなら true
+ */
+function isOverdrawn(piece: Piece, other: Piece, isOtherFirst: boolean): boolean {
+  const { extent } = piece;
+  const otherExtent = other.extent;
+  const size = Math.max(extent.size, otherExtent.size);
+  const reach = size * OVERDRAWN_REACH_EM;
+  return (
+    piece.isMarked === other.isMarked &&
+    size <= Math.min(extent.size, otherExtent.size) * OVERDRAWN_SIZE_RATIO &&
+    Math.abs(extent.cross - otherExtent.cross) < size * OVERDRAWN_CROSS_EM &&
+    extent.start >= otherExtent.start - reach &&
+    extent.end <= otherExtent.end + reach &&
+    (piece.text.length < other.text.length
+      ? other.text.includes(piece.text)
+      : isOtherFirst && other.text === piece.text)
+  );
+}
+
+/**
+ * 文字の対応表のないフォントの片を除く。字の形は正しいが、取り出した文字は字の番号なので、
+ * たまたま本物の漢字になった字に、関係のないルビが付いてしまう。フォントごとに見るので、短い片も除ける。
+ * @param pieces 片の順の片
+ * @returns 文字の対応表のあるフォントの片（片の順）
+ */
+function withoutGarbledFonts(pieces: readonly Piece[]): Piece[] {
+  const counts = new Map<string, { all: number; unexpected: number }>();
+  for (const piece of pieces) {
+    const count = counts.get(piece.item.fontName) ?? { all: 0, unexpected: 0 };
+    for (const ch of piece.text) {
+      count.all += 1;
+      if (UNEXPECTED_CHAR.test(ch)) count.unexpected += 1;
+    }
+    counts.set(piece.item.fontName, count);
+  }
+  return pieces.filter((piece) => {
+    const count = counts.get(piece.item.fontName);
+    return count === undefined || count.unexpected < count.all * GARBLED_FONT_RATIO;
+  });
+}
+
+/**
+ * 同じ字を同じ場所に重ねて描いた片を除く。除かないと、字が2回読まれ、ルビも2つ付く。
+ * @param pieces 片の順の片
+ * @returns 重ねて描いた片を除いた片（片の順）
+ */
+function withoutOverdrawn(pieces: readonly Piece[]): Piece[] {
+  return pieces.filter(
+    (piece, index) =>
+      !pieces.some(
+        (other, otherIndex) =>
+          otherIndex !== index && isOverdrawn(piece, other, otherIndex < index),
+      ),
+  );
+}
+
+/**
  * 片の字を、向きに合わせて1字ずつの箱にする。空白は位置を数えるのに使い、字としては捨てる。
  * @param piece 片
  * @param isVertical 縦に並べるか（縦書きの印のある片だけ）
@@ -110,15 +222,16 @@ function placeGlyphs(piece: Piece, isVertical: boolean, evidence: Evidence): Pla
   const scaleX = Math.hypot(a, b);
   const scaleY = Math.hypot(c, d);
   const size = Math.max(scaleX, scaleY);
-  const count = piece.chars.length;
-  const slots = isVertical ? verticalSlots(piece.chars, piece.item.height, size) : [];
+  const slots = isVertical
+    ? verticalSlots(piece.chars, piece.item.height, size)
+    : horizontalSlots(piece.chars, piece.item.width, scaleX);
   const glyphs: PlacedGlyph[] = [];
   for (const [index, ch] of piece.chars.entries()) {
     if (SKIPPED_CHAR.test(ch)) continue;
+    const [start = 0, end = 0] = slots[index] ?? [];
     let rect: Rect;
     if (isVertical) {
       // 縦書きの片の x は列の中心、y は上の端
-      const [start = 0, end = 0] = slots[index] ?? [];
       rect = {
         x1: x - scaleX / 2,
         x2: x + scaleX / 2,
@@ -126,10 +239,9 @@ function placeGlyphs(piece: Piece, isVertical: boolean, evidence: Evidence): Pla
         y2: y - start,
       };
     } else {
-      const pitch = piece.item.width / count;
       rect = {
-        x1: x + index * pitch,
-        x2: x + (index + 1) * pitch,
+        x1: x + start,
+        x2: x + end,
         y1: y - scaleY * DESCENT_EM,
         y2: y + scaleY * ASCENT_EM,
       };
@@ -171,6 +283,37 @@ export function verticalSlots(
   let at = 0;
   for (const ch of chars) {
     const step = GAP_CHAR.test(ch) ? gapLength : solidLength;
+    slots.push([at, at + step]);
+    at += step;
+  }
+  return slots;
+}
+
+/**
+ * 横書きの片の中で、それぞれの字が左の端からどこまでを占めるかを見積もる。
+ * 全角の字は1字ぶん、半角の字は半字ぶん取り、pdf.js が入れた半角の空白は、片の長さの残りを等しく分けあう。
+ * 残りがない（字が見積もりより詰まっている）か空白がないときは、見積もりの幅の比で片の長さを分ける。
+ * @param chars 片のすべての字（空白を含む）
+ * @param length 片の長さ（横の長さ）
+ * @param size 字の大きさ（横の幅）
+ * @returns 字ごとの [左の端からの始まり, 終わり]
+ */
+export function horizontalSlots(
+  chars: readonly string[],
+  length: number,
+  size: number,
+): (readonly [number, number])[] {
+  const unitOf = (ch: string): number => (HALF_WIDTH_CHAR.test(ch) ? HALF_WIDTH_EM : 1);
+  const gaps = chars.filter((ch) => GAP_CHAR.test(ch)).length;
+  const units = chars.filter((ch) => !GAP_CHAR.test(ch)).reduce((sum, ch) => sum + unitOf(ch), 0);
+  const rest = length - units * size;
+  const hasGapRoom = gaps > 0 && units > 0 && rest >= 0;
+  const unitLength = hasGapRoom ? size : length / Math.max(units, 1);
+  const gapLength = hasGapRoom ? rest / gaps : 0;
+  const slots: (readonly [number, number])[] = [];
+  let at = 0;
+  for (const ch of chars) {
+    const step = GAP_CHAR.test(ch) ? gapLength : unitOf(ch) * unitLength;
     slots.push([at, at + step]);
     at += step;
   }
@@ -229,7 +372,8 @@ function chainToRuns(chain: readonly PlacedGlyph[]): TextRun[] {
 
 /**
  * pdf.js の文字の片を、位置つきの字のランにする。
- * 空白だけの片・印・回した横書きの片は捨てる。1字だけの片が真下へ続く並びは、縦書きの1つのランにする。
+ * 空白だけの片・印・回した横書きの片・文字の対応表のないフォントの片・同じ字を重ねて描いた片は捨てる。
+ * 1字だけの片が真下へ続く並びは、縦書きの1つのランにする。
  * @param content getTextContent() の結果
  * @returns 片の順のラン
  */
@@ -237,16 +381,24 @@ export function toRuns(content: PdfTextContent): TextRun[] {
   const pieces: Piece[] = [];
   for (const item of content.items.filter(isTextItem)) {
     const chars = Array.from(item.str);
-    const visible = chars.filter((ch) => !SKIPPED_CHAR.test(ch)).length;
+    const shown = chars.filter((ch) => !SKIPPED_CHAR.test(ch));
+    const visible = shown.length;
     const isMarked = item.dir === TOP_TO_BOTTOM || content.styles[item.fontName]?.vertical === true;
     const isRotated = Math.abs(item.transform[1] ?? 0) > ROTATION_EPSILON;
     if (visible === 0 || (isRotated && !isMarked)) continue;
-    pieces.push({ item, isMarked, chars, visible });
+    pieces.push({
+      item,
+      isMarked,
+      chars,
+      visible,
+      text: shown.join(''),
+      extent: extentOf(item, isMarked),
+    });
   }
 
   const runs: TextRun[] = [];
   let chain: PlacedGlyph[] = [];
-  for (const piece of pieces) {
+  for (const piece of withoutOverdrawn(withoutGarbledFonts(pieces))) {
     if (piece.isMarked || piece.visible > 1) {
       runs.push(...chainToRuns(chain));
       chain = [];
