@@ -47,8 +47,8 @@ describe('trimFarPages', () => {
       [2, 0],
       [8, 3],
       [10, 3],
-      [13, 3],
-      [14, 2],
+      [14, 3],
+      [15, 2],
     ]);
     const getPageView = vi.fn((pageNumber: number) => {
       const renderingState = states.get(pageNumber);
@@ -64,9 +64,10 @@ describe('trimFarPages', () => {
 
     const trimmed = trimFarPages({ first: 10, last: 11 }, 20, getPageView);
 
-    // 2 は描いていない（0）ので片づけない。8・10・13 は近いので残す
-    expect(trimmed).toEqual([1, 14]);
-    expect(destroyed).toEqual([1, 14]);
+    // 見えているのが 10〜11 で、前後 3 ページ（7〜14）は残す。2 は描いていない（0）ので片づけない
+    expect(KEEP_PAGES_AROUND).toBe(3);
+    expect(trimmed).toEqual([1, 15]);
+    expect(destroyed).toEqual([1, 15]);
   });
 
   it('見えているページが分からないとき、何も片づけない', () => {
