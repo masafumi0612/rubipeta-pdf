@@ -4,6 +4,7 @@ import { createLogger } from '@/log';
 import { startWelcome } from '@/options/welcome';
 import { type DynamicRuleStore, syncRedirectRules } from '@/redirect/register';
 import { clearSkipRule } from '@/redirect/skip';
+import { ensureRedirectToken } from '@/redirect/token';
 import type { SettingKey } from '@/settings/model';
 import { getSettings } from '@/settings/storage';
 import { OPENED_PREFIX, respondOpenedPdf } from '@/viewer/opened-pdf';
@@ -35,11 +36,13 @@ let syncQueue: Promise<unknown> = Promise.resolve();
 function syncRules(): void {
   syncQueue = syncQueue
     .then(async () => {
-      const [settings, hasHostAccess] = await Promise.all([
+      // 秘密の印は、ブラウザーを起動するたびに作り直す（storage.session は終了で消える）
+      const [settings, hasHostAccess, token] = await Promise.all([
         getSettings(),
         browser.permissions.contains(ALL_URLS),
+        ensureRedirectToken(browser.storage.session),
       ]);
-      await syncRedirectRules(dynamicRules, browser.runtime.getURL('/viewer.html'), {
+      await syncRedirectRules(dynamicRules, browser.runtime.getURL('/viewer.html'), token, {
         isEnabled: settings.autoRedirect,
         hasHostAccess,
       });

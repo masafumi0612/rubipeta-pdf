@@ -8,4 +8,4 @@ import { createWorkerClient } from '@/messaging/worker';
 import ReadingWorker from './reading.worker?worker';
 
 const client = createWorkerClient(new ReadingWorker(), READING_TIMEOUT_MS);
-browser.runtime.onMessage.addListener(createOffscreenListener(client));
+browser.runtime.onMessage.addListener(createOffscreenListener(client, browser.runtime.id));

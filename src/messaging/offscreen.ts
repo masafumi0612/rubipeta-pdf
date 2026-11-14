@@ -58,19 +58,21 @@ export async function ensureOffscreenDocument(
 
 /**
  * offscreen document が読みの問い合わせを受け取ったときに呼ぶ関数を作る。
- * 宛先が offscreen でないメッセージは受け取らない。形のおかしい問い合わせは、エラーを記録して無視する。
+ * 宛先が offscreen でないメッセージと、ほかの拡張から来たメッセージは受け取らない。形のおかしい問い合わせは、エラーを記録して無視する。
  * @param client Worker に問い合わせるもの
+ * @param extensionId この拡張の ID（browser.runtime.id）。送り手がこの拡張のときだけ答える
  * @returns runtime.onMessage に渡す関数。返事をあとで送るときは true を返す（Chrome の決まり）
  */
 export function createOffscreenListener(
   client: WorkerClient,
+  extensionId: string,
 ): (
   message: unknown,
   sender: unknown,
   sendResponse: (response: ReadingResult) => void,
 ) => true | undefined {
-  return (message, _sender, sendResponse) => {
-    if (!isForOffscreen(message)) {
+  return (message, sender, sendResponse) => {
+    if (!isForOffscreen(message) || !isOwnSender(sender, extensionId)) {
       return undefined;
     }
     if (!isReadingRequest(message)) {
@@ -86,6 +88,18 @@ export function createOffscreenListener(
       });
     return true;
   };
+}
+
+/**
+ * 送り手がこの拡張か（runtime.onMessage の sender.id で見る）。
+ * @param sender 送り手
+ * @param extensionId この拡張の ID
+ * @returns この拡張なら true
+ */
+function isOwnSender(sender: unknown, extensionId: string): boolean {
+  return (
+    typeof sender === 'object' && sender !== null && 'id' in sender && sender.id === extensionId
+  );
 }
 
 /**

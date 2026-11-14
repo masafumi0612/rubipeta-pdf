@@ -14,14 +14,14 @@ describe('readViewerParams', () => {
   it('file の引数がないとき、開く URL はない', () => {
     expect(readViewerParams('', EXTENSION_ORIGIN)).toEqual({
       ok: true,
-      value: { pdfUrl: undefined, hasCredentials: false },
+      value: { pdfUrl: undefined, isRedirected: false, redirectToken: undefined },
     });
   });
 
   it('file の引数が空のとき、開く URL はない', () => {
     expect(readViewerParams('?file=', EXTENSION_ORIGIN)).toEqual({
       ok: true,
-      value: { pdfUrl: undefined, hasCredentials: false },
+      value: { pdfUrl: undefined, isRedirected: false, redirectToken: undefined },
     });
   });
 
@@ -29,21 +29,25 @@ describe('readViewerParams', () => {
     const search = `?file=${encodeURIComponent('https://example.com/a b.pdf?x=1')}`;
     expect(readViewerParams(search, EXTENSION_ORIGIN)).toEqual({
       ok: true,
-      value: { pdfUrl: 'https://example.com/a%20b.pdf?x=1', hasCredentials: false },
+      value: {
+        pdfUrl: 'https://example.com/a%20b.pdf?x=1',
+        isRedirected: false,
+        redirectToken: undefined,
+      },
     });
   });
 
   it('file の URL のとき、開いてよい', () => {
     expect(readViewerParams('?file=file:///C:/a.pdf', EXTENSION_ORIGIN)).toEqual({
       ok: true,
-      value: { pdfUrl: 'file:///C:/a.pdf', hasCredentials: false },
+      value: { pdfUrl: 'file:///C:/a.pdf', isRedirected: false, redirectToken: undefined },
     });
   });
 
   it('この拡張の中の URL のとき、開いてよい', () => {
     expect(readViewerParams(`?file=${EXTENSION_ORIGIN}/a.pdf`, EXTENSION_ORIGIN)).toEqual({
       ok: true,
-      value: { pdfUrl: `${EXTENSION_ORIGIN}/a.pdf`, hasCredentials: false },
+      value: { pdfUrl: `${EXTENSION_ORIGIN}/a.pdf`, isRedirected: false, redirectToken: undefined },
     });
   });
 
@@ -57,7 +61,11 @@ describe('readViewerParams', () => {
   it('この拡張の画面が作った blob: の URL のとき、開いてよい', () => {
     expect(readViewerParams(`?file=blob:${EXTENSION_ORIGIN}/0f8c-41`, EXTENSION_ORIGIN)).toEqual({
       ok: true,
-      value: { pdfUrl: `blob:${EXTENSION_ORIGIN}/0f8c-41`, hasCredentials: false },
+      value: {
+        pdfUrl: `blob:${EXTENSION_ORIGIN}/0f8c-41`,
+        isRedirected: false,
+        redirectToken: undefined,
+      },
     });
   });
 
@@ -89,25 +97,39 @@ describe('readViewerParams', () => {
     });
   });
 
-  it('自動で移されたとき、符号化されていない元の URL をそのまま読み、Cookie を付ける', () => {
+  it('自動で移されたとき、秘密の印と、符号化されていない元の URL をそのまま読む', () => {
+    const token = '0123456789abcdef0123456789abcdef';
+    expect(
+      readViewerParams(`?DNR:${token}:https://example.com/a.pdf?x=1`, EXTENSION_ORIGIN),
+    ).toEqual({
+      ok: true,
+      value: { pdfUrl: 'https://example.com/a.pdf?x=1', isRedirected: true, redirectToken: token },
+    });
+  });
+
+  it('自動で移された形だが秘密の印がないとき、元の URL は読むが、印はない', () => {
     const search = '?DNR:https://example.com/a.pdf?x=1&y=2';
     expect(readViewerParams(search, EXTENSION_ORIGIN)).toEqual({
       ok: true,
-      value: { pdfUrl: 'https://example.com/a.pdf?x=1&y=2', hasCredentials: true },
+      value: {
+        pdfUrl: 'https://example.com/a.pdf?x=1&y=2',
+        isRedirected: true,
+        redirectToken: undefined,
+      },
     });
   });
 
   it('自動で移されたとき、元の URL が file でも読める', () => {
     expect(readViewerParams('?DNR:file:///C:/a.pdf', EXTENSION_ORIGIN)).toEqual({
       ok: true,
-      value: { pdfUrl: 'file:///C:/a.pdf', hasCredentials: true },
+      value: { pdfUrl: 'file:///C:/a.pdf', isRedirected: true, redirectToken: undefined },
     });
   });
 
   it('自動で移されたが元の URL が空のとき、開く URL はない', () => {
     expect(readViewerParams('?DNR:', EXTENSION_ORIGIN)).toEqual({
       ok: true,
-      value: { pdfUrl: undefined, hasCredentials: false },
+      value: { pdfUrl: undefined, isRedirected: false, redirectToken: undefined },
     });
   });
 

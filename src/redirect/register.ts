@@ -36,15 +36,17 @@ export function shouldRegisterRules(state: RedirectState): boolean {
  *
  * @param store - 動的ルールの出し入れ
  * @param viewerUrl - リーダーの URL
+ * @param token - 秘密の印（token.ts）
  * @param state - スイッチと権限の状態
  * @returns ルールを入れ替えたら true
  */
 export async function syncRedirectRules(
   store: DynamicRuleStore,
   viewerUrl: string,
+  token: string,
   state: RedirectState,
 ): Promise<boolean> {
-  const desired = shouldRegisterRules(state) ? buildRedirectRules(viewerUrl) : [];
+  const desired = shouldRegisterRules(state) ? buildRedirectRules(viewerUrl, token) : [];
   const current = await store.getRules();
   if (JSON.stringify(current) === JSON.stringify(desired)) {
     return false;

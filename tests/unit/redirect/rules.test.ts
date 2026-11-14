@@ -3,9 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { buildRedirectRules } from '@/redirect/rules';
 
 const VIEWER_URL = 'chrome-extension://abcdefghijklmnopabcdefghijklmnop/viewer.html';
+/** 秘密の印 */
+const TOKEN = '0123456789abcdef0123456789abcdef';
 
 describe('buildRedirectRules', () => {
-  const rules = buildRedirectRules(VIEWER_URL);
+  const rules = buildRedirectRules(VIEWER_URL, TOKEN);
 
   it('ルールの id がすべて違うとき、重ならずに登録できる', () => {
     expect(new Set(rules.map((rule) => rule.id)).size).toBe(rules.length);
@@ -17,11 +19,11 @@ describe('buildRedirectRules', () => {
     expect(new Set(priorities).size).toBe(rules.length);
   });
 
-  it('移すルールのとき、元の URL 全体をリーダーの URL の後ろに付ける', () => {
+  it('移すルールのとき、秘密の印と元の URL 全体をリーダーの URL の後ろに付ける', () => {
     const redirects = rules.filter((rule) => rule.action.type === 'redirect');
     expect(redirects.length).toBeGreaterThan(0);
     for (const rule of redirects) {
-      expect(rule.action.redirect?.regexSubstitution).toBe(`${VIEWER_URL}?DNR:\\0`);
+      expect(rule.action.redirect?.regexSubstitution).toBe(`${VIEWER_URL}?DNR:${TOKEN}:\\0`);
     }
   });
 

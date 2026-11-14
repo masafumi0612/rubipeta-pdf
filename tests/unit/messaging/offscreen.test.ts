@@ -127,6 +127,10 @@ describe('ensureOffscreenDocument', () => {
   });
 });
 
+/** この拡張の ID と、この拡張から来たときの送り手 */
+const OWN_ID = 'abcdefghijklmnopabcdefghijklmnop';
+const OWN_SENDER = { id: OWN_ID };
+
 describe('createOffscreenListener', () => {
   beforeEach(() => {
     clearRecentErrors();
@@ -134,8 +138,11 @@ describe('createOffscreenListener', () => {
 
   it('形の合った問い合わせが来たとき、true を返し、Worker の返事を送る', async () => {
     const sendResponse = vi.fn<(response: ReadingResult) => void>();
-    const listener = createOffscreenListener(clientOf(() => Promise.resolve(RESULT)));
-    expect(listener(REQUEST, {}, sendResponse)).toBe(true);
+    const listener = createOffscreenListener(
+      clientOf(() => Promise.resolve(RESULT)),
+      OWN_ID,
+    );
+    expect(listener(REQUEST, OWN_SENDER, sendResponse)).toBe(true);
     await vi.waitFor(() => {
       expect(sendResponse).toHaveBeenCalledWith(RESULT);
     });
@@ -147,21 +154,36 @@ describe('createOffscreenListener', () => {
     ['宛先がほかの部品の', { ...REQUEST, target: 'background' }],
   ])('%sメッセージのとき、受け取らない', (_label, message) => {
     const request = vi.fn<WorkerClient['request']>();
-    const listener = createOffscreenListener(clientOf(request));
-    expect([listener(message, {}, vi.fn()), request.mock.calls.length]).toEqual([undefined, 0]);
-  });
-
-  it('宛先が offscreen で形がおかしいとき、受け取らずにエラーを残す', () => {
-    const listener = createOffscreenListener(clientOf(vi.fn()));
-    expect([listener({ target: 'offscreen' }, {}, vi.fn()), getRecentErrors().length]).toEqual([
+    const listener = createOffscreenListener(clientOf(request), OWN_ID);
+    expect([listener(message, OWN_SENDER, vi.fn()), request.mock.calls.length]).toEqual([
       undefined,
-      1,
+      0,
     ]);
   });
 
+  it.each([
+    ['ほかの拡張', { id: 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz' }],
+    ['送り手の分からない', {}],
+  ])('%sから来たとき、受け取らない', (_label, sender) => {
+    const request = vi.fn<WorkerClient['request']>();
+    const listener = createOffscreenListener(clientOf(request), OWN_ID);
+    expect([listener(REQUEST, sender, vi.fn()), request.mock.calls.length]).toEqual([undefined, 0]);
+  });
+
+  it('宛先が offscreen で形がおかしいとき、受け取らずにエラーを残す', () => {
+    const listener = createOffscreenListener(clientOf(vi.fn()), OWN_ID);
+    expect([
+      listener({ target: 'offscreen' }, OWN_SENDER, vi.fn()),
+      getRecentErrors().length,
+    ]).toEqual([undefined, 1]);
+  });
+
   it('Worker への問い合わせが思いがけず失敗したとき、エラーを残す', async () => {
-    const listener = createOffscreenListener(clientOf(() => Promise.reject(new Error('壊れた'))));
-    listener(REQUEST, {}, vi.fn());
+    const listener = createOffscreenListener(
+      clientOf(() => Promise.reject(new Error('壊れた'))),
+      OWN_ID,
+    );
+    listener(REQUEST, OWN_SENDER, vi.fn());
     await vi.waitFor(() => {
       expect(getRecentErrors()).toHaveLength(1);
     });
