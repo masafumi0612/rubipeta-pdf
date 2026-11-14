@@ -132,7 +132,25 @@ test('できたときの窓で［開く］を押したとき、作った PDF を
   await doneDialog(page).getByRole('button', { name: '開く' }).click();
 
   const tab = await opened;
-  await expect.poll(() => tab.url()).toMatch(BLOB_URL);
+  // 保存したときの名前が UUID にならないよう、名前の付いた拡張の URL で開く
+  const name = 'mixed-layout（ルビ付き）.pdf';
+  await expect
+    .poll(() => decodeURIComponent(tab.url()))
+    .toMatch(new RegExp(`^chrome-extension://${extensionId}/opened/[0-9a-f-]{36}/${name}$`, 'u'));
+  // 拡張の service worker が、その URL で作った PDF を返す
+  const served = await page.evaluate(async (url) => {
+    const response = await fetch(url);
+    return {
+      type: response.headers.get('content-type'),
+      disposition: response.headers.get('content-disposition'),
+      head: new TextDecoder().decode((await response.arrayBuffer()).slice(0, 5)),
+    };
+  }, tab.url());
+  expect(served).toEqual({
+    type: 'application/pdf',
+    disposition: `inline; filename*=UTF-8''${encodeURIComponent(name)}`,
+    head: '%PDF-',
+  });
   await expect(doneDialog(page)).toBeVisible();
   await expect(doneDialog(page).getByRole('alert')).toBeHidden();
 });

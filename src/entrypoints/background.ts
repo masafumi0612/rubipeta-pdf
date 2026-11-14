@@ -6,6 +6,7 @@ import { type DynamicRuleStore, syncRedirectRules } from '@/redirect/register';
 import { clearSkipRule } from '@/redirect/skip';
 import type { SettingKey } from '@/settings/model';
 import { getSettings } from '@/settings/storage';
+import { OPENED_PREFIX, respondOpenedPdf } from '@/viewer/opened-pdf';
 
 /** すべてのサイトを読む権限。後から利用者に許可してもらう */
 const ALL_URLS = { origins: ['<all_urls>'] };
@@ -14,6 +15,12 @@ const ALL_URLS = { origins: ['<all_urls>'] };
 const AUTO_REDIRECT_KEY: SettingKey = 'autoRedirect';
 
 const log = createLogger('background');
+
+/** service worker の fetch の知らせ（使うところだけ） */
+interface FetchEvent extends Event {
+  readonly request: Request;
+  respondWith(response: Promise<Response>): void;
+}
 
 const dynamicRules: DynamicRuleStore = {
   getRules: () => browser.declarativeNetRequest.getDynamicRules(),
@@ -70,6 +77,14 @@ export default defineBackground(() => {
     if (area === 'sync' && AUTO_REDIRECT_KEY in changes) {
       syncRules();
     }
+  });
+  // ［開く］で出すルビ付きの PDF を、名前の付いた URL で返す（保存したときの名前を UUID にしないため。opened-pdf.ts）
+  globalThis.addEventListener('fetch', (event) => {
+    const { request } = event as FetchEvent;
+    const url = new URL(request.url);
+    if (url.origin !== globalThis.location.origin || !url.pathname.startsWith(OPENED_PREFIX))
+      return;
+    (event as FetchEvent).respondWith(respondOpenedPdf(url));
   });
   browser.tabs.onRemoved.addListener((tabId) => {
     clearSkipRule(tabId).catch((error: unknown) => {

@@ -26,8 +26,15 @@ export interface RubyExportDialog {
    * @param name ルビ付きの PDF の名前
    * @param failedPages ルビを付けずに作ったページ
    * @param alert 窓に出す知らせ（印刷を呼べなかったときなど）
+   * @param openUrl ［開く］で開く、名前の付いた URL。なければ blob の URL で開く
    */
-  open(url: string, name: RubyPdfName, failedPages: readonly number[], alert?: MessageName): void;
+  open(
+    url: string,
+    name: RubyPdfName,
+    failedPages: readonly number[],
+    alert?: MessageName,
+    openUrl?: string,
+  ): void;
   /** ［印刷］を押したときと同じように、印刷の画面を出す */
   print(): void;
   /** 開いていれば閉じる */
@@ -114,7 +121,7 @@ export function createRubyExportDialog(
   dialog.append(form);
   document.body.append(dialog);
 
-  let current: { url: string; name: RubyPdfName } | undefined;
+  let current: { url: string; name: RubyPdfName; openUrl: string | undefined } | undefined;
   const showAlert = (name: MessageName | undefined): void => {
     alert.textContent = name === undefined ? '' : text(name);
     alert.hidden = name === undefined;
@@ -148,7 +155,9 @@ export function createRubyExportDialog(
     // 開いた先は自分で作った PDF を Chrome の標準の表示で出すだけなので、noopener は付けない
     //（付けると、ポップアップを止められたかが分からない）。止められたときは、押し直してもらう
     showAlert(
-      window.open(current.url, '_blank') === null ? 'viewer_export_popupBlocked' : undefined,
+      window.open(current.openUrl ?? current.url, '_blank') === null
+        ? 'viewer_export_popupBlocked'
+        : undefined,
     );
   });
   closeButton.addEventListener('click', () => {
@@ -167,8 +176,8 @@ export function createRubyExportDialog(
     get isOpen() {
       return dialog.open;
     },
-    open(url, name, failedPages, alertName) {
-      current = { url, name };
+    open(url, name, failedPages, alertName, openUrl) {
+      current = { url, name, openUrl };
       fileName.textContent = name.fileName;
       failed.textContent = failedPagesMessage(text, failedPages);
       failed.hidden = failedPages.length === 0;

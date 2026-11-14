@@ -4,11 +4,13 @@
 // 作っている間に向き・読み・設定が変わったら、途中のものを捨てて初めから作り直す（ページごとに設定が混ざらないように）。
 // 作った PDF の blob の URL は、開いたタブ・印刷が読んでいる間に消さないよう、窓を閉じても持っておき、
 // 次の PDF ができたときと別の PDF を開いたときに捨てる（リーダーのタブを閉じたときは Chrome が捨てる）。
+// ［開く］は、保存したときの名前が UUID にならないよう、名前の付いた拡張の URL で開く（opened-pdf.ts）。
 import { browser } from 'wxt/browser';
 
 import { createLogger } from '@/log';
 import type { Result } from '@/result';
 
+import { type OpenedPdf, storeOpenedPdf } from './opened-pdf';
 import { createPdfPrinter } from './pdf-print';
 import { exportRubyPdf, type RubyExport, type RubyExportOptions } from './ruby-export';
 import { createRubyExportDialog, failedPagesMessage, type MessageText } from './ruby-export-dialog';
@@ -86,6 +88,25 @@ export interface RubyExportUi {
 }
 
 /**
+ * 作った PDF を、［開く］で使う名前の付いた URL で置く。置けなくても作った PDF は使えるので、記録だけして undefined を返す。
+ * @param blob 作った PDF
+ * @param fileName ファイルの名前
+ * @returns 置いた PDF。置けなければ undefined
+ */
+async function storeOpened(blob: Blob, fileName: string): Promise<OpenedPdf | undefined> {
+  try {
+    return await storeOpenedPdf(
+      blob,
+      fileName,
+      (path) => new URL(path, browser.runtime.getURL('/viewer.html')).href,
+    );
+  } catch (error) {
+    log.error('［開く］で使う PDF を置けませんでした', error);
+    return undefined;
+  }
+}
+
+/**
  * ルビ付きの PDF を作る画面の流れを作る。
  * @param options 作り方
  * @returns 画面の流れ
@@ -100,6 +121,8 @@ export function createRubyExportUi(options: RubyExportUiOptions): RubyExportUi {
   /** できたら、窓を出さずに印刷の画面を出すなら true（Ctrl+P から始めたとき） */
   let isPrintWanted = false;
   let madeUrl: string | undefined;
+  // ［開く］で使う、名前の付いた URL で置いた PDF（opened-pdf.ts）。置けなかったときは blob の URL で開く
+  let opened: OpenedPdf | undefined;
 
   const showNotice = (message: string, isRunning: boolean): void => {
     const focused = document.activeElement;
@@ -137,6 +160,8 @@ export function createRubyExportUi(options: RubyExportUiOptions): RubyExportUi {
   const revoke = (): void => {
     if (madeUrl !== undefined) URL.revokeObjectURL(madeUrl);
     madeUrl = undefined;
+    opened?.dispose();
+    opened = undefined;
   };
 
   const printMade = async (url: string, made: RubyExport, name: RubyPdfName): Promise<void> => {
@@ -144,7 +169,7 @@ export function createRubyExportUi(options: RubyExportUiOptions): RubyExportUi {
     if (madeUrl !== url) return;
     if (!isPrinted) {
       // 印刷を呼べなかったときは、窓を出して、新しいタブに開いて印刷してもらう
-      dialog.open(url, name, made.failedPages, 'viewer_export_printFailed');
+      dialog.open(url, name, made.failedPages, 'viewer_export_printFailed', opened?.url);
     } else if (made.failedPages.length > 0) {
       showMessage(failedPagesMessage(text, made.failedPages));
     }
@@ -210,8 +235,15 @@ export function createRubyExportUi(options: RubyExportUiOptions): RubyExportUi {
     const blob = new Blob([result.value.bytes.slice()], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     madeUrl = url;
+    const stored = await storeOpened(blob, name.fileName);
+    // 置いている間に、次の PDF ができた・別の PDF を開いたときは、古い結果を出さない
+    if (madeUrl !== url) {
+      stored?.dispose();
+      return;
+    }
+    opened = stored;
     if (isPrinting) await printMade(url, result.value, name);
-    else dialog.open(url, name, result.value.failedPages);
+    else dialog.open(url, name, result.value.failedPages, undefined, opened?.url);
   };
   const begin = (isRestart: boolean): void => {
     run(isRestart).catch((error: unknown) => {
