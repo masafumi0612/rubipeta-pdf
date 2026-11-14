@@ -7,6 +7,8 @@ import { buildRedirectRules } from '@/redirect/rules';
 type Rule = Browser.declarativeNetRequest.Rule;
 
 const VIEWER_URL = 'chrome-extension://abcdefghijklmnopabcdefghijklmnop/viewer.html';
+/** 秘密の印 */
+const TOKEN = '0123456789abcdef0123456789abcdef';
 
 /** 登録済みのルールを覚えるだけの入れ物 */
 function createStore(
@@ -46,19 +48,19 @@ describe('syncRedirectRules', () => {
   it('スイッチがオンで権限があるとき、ルールを登録する', async () => {
     const store = createStore();
 
-    const isChanged = await syncRedirectRules(store, VIEWER_URL, {
+    const isChanged = await syncRedirectRules(store, VIEWER_URL, TOKEN, {
       isEnabled: true,
       hasHostAccess: true,
     });
 
     expect(isChanged).toBe(true);
-    expect(store.rules).toEqual(buildRedirectRules(VIEWER_URL));
+    expect(store.rules).toEqual(buildRedirectRules(VIEWER_URL, TOKEN));
   });
 
   it('権限が外されたとき、登録済みのルールをすべて消す', async () => {
-    const store = createStore(buildRedirectRules(VIEWER_URL));
+    const store = createStore(buildRedirectRules(VIEWER_URL, TOKEN));
 
-    const isChanged = await syncRedirectRules(store, VIEWER_URL, {
+    const isChanged = await syncRedirectRules(store, VIEWER_URL, TOKEN, {
       isEnabled: true,
       hasHostAccess: false,
     });
@@ -68,9 +70,9 @@ describe('syncRedirectRules', () => {
   });
 
   it('すでに同じルールがあるとき、入れ替えない', async () => {
-    const store = createStore(buildRedirectRules(VIEWER_URL));
+    const store = createStore(buildRedirectRules(VIEWER_URL, TOKEN));
 
-    const isChanged = await syncRedirectRules(store, VIEWER_URL, {
+    const isChanged = await syncRedirectRules(store, VIEWER_URL, TOKEN, {
       isEnabled: true,
       hasHostAccess: true,
     });
@@ -82,7 +84,7 @@ describe('syncRedirectRules', () => {
   it('何も登録しておらず登録しない状態のとき、何もしない', async () => {
     const store = createStore();
 
-    const isChanged = await syncRedirectRules(store, VIEWER_URL, {
+    const isChanged = await syncRedirectRules(store, VIEWER_URL, TOKEN, {
       isEnabled: false,
       hasHostAccess: true,
     });

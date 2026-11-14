@@ -10,6 +10,7 @@ import { createLogger } from '@/log';
 import { withTimeout } from '@/messaging/timeout';
 import { requestJump } from '@/options/jump';
 import { allowNativeView } from '@/redirect/skip';
+import { isRedirectToken } from '@/redirect/token';
 import { DEFAULT_SETTINGS, type Settings } from '@/settings/model';
 import { getSettings, watchSettings } from '@/settings/storage';
 import type { Level } from '@/text/types';
@@ -689,11 +690,16 @@ document.addEventListener('drop', (event) => {
 setDocumentShown(false);
 const params = readViewerParams(location.search, location.origin);
 if (params.ok && params.value.pdfUrl !== undefined) {
+  // Cookie を付けて取り直すのは、自動で移したときの秘密の印が合うときだけ。
+  // ほかのサイトが作った URL（印がない・違う）でも開くが、Cookie は付けない（redirect/token.ts）
+  const hasCredentials =
+    params.value.isRedirected &&
+    (await isRedirectToken(browser.storage.session, params.value.redirectToken).catch(() => false));
   await openSource({
     kind: 'url',
     url: params.value.pdfUrl,
-    hasCredentials: params.value.hasCredentials,
-    hash: readInitialHash(params.value.pdfUrl, params.value.hasCredentials, location.hash),
+    hasCredentials,
+    hash: readInitialHash(params.value.pdfUrl, params.value.isRedirected, location.hash),
   });
 } else {
   // 開いてはいけない URL を渡されたときも、ファイルを選んで開けるようにしておく

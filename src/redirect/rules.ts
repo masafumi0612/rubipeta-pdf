@@ -3,7 +3,10 @@ import type { Browser } from 'wxt/browser';
 type Rule = Browser.declarativeNetRequest.Rule;
 type RuleCondition = Browser.declarativeNetRequest.RuleCondition;
 
-/** 元の URL をリーダーに渡す印。DNR は URL を符号化できないので、元の URL をそのまま後ろに付ける */
+/**
+ * 元の URL をリーダーに渡す印。DNR は URL を符号化できないので、元の URL をそのまま後ろに付ける。
+ * 印のすぐ後ろに秘密の印（token.ts）と「:」を入れる（`?DNR:<秘密の印>:<元の URL>`）
+ */
 export const REDIRECT_QUERY_PREFIX = '?DNR:';
 
 /** PDF を返すときの種類 */
@@ -20,12 +23,13 @@ const EXCLUDED_METHODS: RuleCondition['excludedRequestMethods'] = ['post'];
  * 前にあるルールほど優先する（移さない決まりが、移す決まりより先）。
  *
  * @param viewerUrl - リーダーの URL（`chrome-extension://<ID>/viewer.html`）
+ * @param token - 秘密の印（token.ts）。リーダーは、これが合うときだけ Cookie を付けて取り直す
  * @returns 登録するルール（id と優先度つき）
  */
-export function buildRedirectRules(viewerUrl: string): Rule[] {
+export function buildRedirectRules(viewerUrl: string, token: string): Rule[] {
   const redirect = {
     type: 'redirect',
-    redirect: { regexSubstitution: `${viewerUrl}${REDIRECT_QUERY_PREFIX}\\0` },
+    redirect: { regexSubstitution: `${viewerUrl}${REDIRECT_QUERY_PREFIX}${token}:\\0` },
   } as const;
   const allow = { type: 'allow' } as const;
   const frames = ['main_frame', 'sub_frame'] as const;

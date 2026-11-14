@@ -105,7 +105,8 @@ test.describe('リーダーに移る', () => {
       await page.goto(origin + path);
 
       await expect(page).toHaveURL(viewerUrlPattern(extensionId));
-      expect(page.url().endsWith(`?DNR:${origin}${path}`)).toBe(true);
+      // 秘密の印（16 進の 32 字）のあとに、元の URL をそのまま付ける
+      expect(page.url()).toMatch(new RegExp(`\\?DNR:[0-9a-f]{32}:${origin}${path}$`, 'u'));
       await expect(page.locator('#page-total')).toHaveText('/ 1');
     });
   }
@@ -128,6 +129,26 @@ test.describe('リーダーに移る', () => {
     await expect(page).toHaveURL(viewerUrlPattern(extensionId));
     await expect(page.locator('#page-total')).toHaveText('/ 1');
   });
+
+  // ほかのサイトが、自動で移した形の URL を作っても、拡張に Cookie 付きで読ませられない
+  for (const [name, token] of [
+    ['秘密の印がない', ''],
+    ['秘密の印が違う', `${'0'.repeat(32)}:`],
+  ] as const) {
+    test(`自動で移した形の URL を作ったが${name}とき、Cookie を付けずに読み、ログインが要る PDF は出ない`, async ({
+      page,
+      extensionId,
+    }) => {
+      await page.goto(`${origin}/page.html`);
+
+      await page.goto(
+        `chrome-extension://${extensionId}/viewer.html?DNR:${token}${origin}/login.pdf`,
+      );
+
+      await expect(page.locator('#status')).toBeVisible();
+      await expect(page.locator('#page-total')).not.toHaveText('/ 1');
+    });
+  }
 });
 
 test.describe('リーダーに移らない', () => {

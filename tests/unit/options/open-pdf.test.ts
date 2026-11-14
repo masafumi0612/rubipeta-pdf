@@ -52,7 +52,11 @@ describe('readerUrlFor', () => {
     const search = new URL(readerUrlFor(READER_URL, pdfUrl)).search;
     expect(readViewerParams(search, EXTENSION_ORIGIN)).toEqual({
       ok: true,
-      value: { pdfUrl: 'https://example.com/a%20b.pdf?x=1&y=2#page=3', hasCredentials: false },
+      value: {
+        pdfUrl: 'https://example.com/a%20b.pdf?x=1&y=2#page=3',
+        isRedirected: false,
+        redirectToken: undefined,
+      },
     });
   });
 
@@ -61,7 +65,7 @@ describe('readerUrlFor', () => {
     const search = new URL(readerUrlFor(READER_URL, blobUrl)).search;
     expect(readViewerParams(search, EXTENSION_ORIGIN)).toEqual({
       ok: true,
-      value: { pdfUrl: blobUrl, hasCredentials: false },
+      value: { pdfUrl: blobUrl, isRedirected: false, redirectToken: undefined },
     });
   });
 });

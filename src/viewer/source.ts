@@ -1,7 +1,7 @@
 /** リーダーの URL で、開く PDF の URL を渡す引数の名前（`viewer.html?file=<URL>`） */
 const FILE_PARAM = 'file';
 
-/** 自動で移されたときに元の URL を渡す印（`viewer.html?DNR:<URL>`）。移す側のルールと合わせる */
+/** 自動で移されたときに元の URL を渡す印（`viewer.html?DNR:<秘密の印>:<URL>`）。移す側のルール（redirect/rules.ts）と合わせる */
 const REDIRECTED_PREFIX = '?DNR:';
 
 /** リーダーが読みに行ってよい URL の種類。ほかの種類（javascript: や data: など）は開かない */
@@ -10,9 +10,21 @@ const ALLOWED_PROTOCOLS = new Set(['http:', 'https:', 'file:']);
 /** 設定の画面で選んだファイルを渡す URL の種類。名前を持たないので、渡す側が `#` の後ろにファイル名を付ける */
 const BLOB_PROTOCOL = 'blob:';
 
+/** 秘密の印と元の URL の区切り。印は 16 進の 32 字（redirect/token.ts） */
+const TOKEN_PART = /^([0-9a-f]{32}):/u;
+
 /** URL の引数を読み取った結果 */
 export type ViewerParamsResult =
-  | { ok: true; value: { pdfUrl: string | undefined; hasCredentials: boolean } }
+  | {
+      ok: true;
+      value: {
+        pdfUrl: string | undefined;
+        /** 自動で移されたとき（`?DNR:`）true */
+        isRedirected: boolean;
+        /** 自動で移されたときの秘密の印。合うか（Cookie を付けてよいか）は、開く側が確かめる */
+        redirectToken: string | undefined;
+      };
+    }
   | { ok: false; error: 'invalid-url' | 'unsupported-protocol' };
 
 /**
@@ -21,16 +33,22 @@ export type ViewerParamsResult =
  * @param search - リーダーの URL の `?` から後ろ（`location.search`）
  * @param extensionOrigin - この拡張の起点（`chrome-extension://<ID>`）。拡張の中の PDF は開いてよい
  * @returns 開く URL。引数がなければ `pdfUrl` は undefined。読めない・開いてはいけない URL は失敗。
- *   自動で移されたとき（`?DNR:`）は、ログイン中の PDF も取り直せるよう `hasCredentials` が true
+ *   自動で移されたとき（`?DNR:`）は `isRedirected` が true で、秘密の印があれば `redirectToken` に入れる。
+ *   印がないか形が違うときも開くが、Cookie は付けない（開く側が印を確かめる）
  */
 export function readViewerParams(search: string, extensionOrigin: string): ViewerParamsResult {
   const isRedirected = search.startsWith(REDIRECTED_PREFIX);
-  // 移されたときの URL は符号化されていないので、そのまま後ろを読む
+  // 移されたときの URL は符号化されていないので、秘密の印の後ろをそのまま読む
+  const afterPrefix = isRedirected ? search.slice(REDIRECTED_PREFIX.length) : '';
+  const token = TOKEN_PART.exec(afterPrefix)?.[1];
   const raw = isRedirected
-    ? search.slice(REDIRECTED_PREFIX.length)
+    ? afterPrefix.slice(token === undefined ? 0 : token.length + 1)
     : new URLSearchParams(search).get(FILE_PARAM);
   if (raw === null || raw === '') {
-    return { ok: true, value: { pdfUrl: undefined, hasCredentials: false } };
+    return {
+      ok: true,
+      value: { pdfUrl: undefined, isRedirected: false, redirectToken: undefined },
+    };
   }
   if (!URL.canParse(raw)) {
     return { ok: false, error: 'invalid-url' };
@@ -44,28 +62,24 @@ export function readViewerParams(search: string, extensionOrigin: string): Viewe
   if (!ALLOWED_PROTOCOLS.has(url.protocol) && !isOwnExtension) {
     return { ok: false, error: 'unsupported-protocol' };
   }
-  return { ok: true, value: { pdfUrl: url.href, hasCredentials: isRedirected } };
+  return { ok: true, value: { pdfUrl: url.href, isRedirected, redirectToken: token } };
 }
 
 /**
  * 開くときにページ・倍率などを決める、URL の `#` から後ろを取り出す。
  *
  * @param pdfUrl - 開く PDF の URL
- * @param hasCredentials - 自動で移されて開くとき true。このとき元の URL の `#` から後ろは、リーダーの URL に残っている
+ * @param isRedirected - 自動で移されて開くとき true。このとき元の URL の `#` から後ろは、リーダーの URL に残っている
  * @param viewerHash - リーダーの URL の `#` から後ろ（`location.hash`、`#` つき）
  * @returns `#` を除いた文字。なければ空の文字列
  */
-export function readInitialHash(
-  pdfUrl: string,
-  hasCredentials: boolean,
-  viewerHash: string,
-): string {
+export function readInitialHash(pdfUrl: string, isRedirected: boolean, viewerHash: string): string {
   const url = new URL(pdfUrl);
   // blob: の URL の `#` から後ろは、ページの指定ではなくファイル名
-  if (!hasCredentials && url.protocol === BLOB_PROTOCOL) {
+  if (!isRedirected && url.protocol === BLOB_PROTOCOL) {
     return '';
   }
-  const hash = hasCredentials ? viewerHash : url.hash;
+  const hash = isRedirected ? viewerHash : url.hash;
   return hash.startsWith('#') ? hash.slice(1) : hash;
 }
 
