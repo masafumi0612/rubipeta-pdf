@@ -61,11 +61,13 @@ export async function ensureOffscreenDocument(
  * 宛先が offscreen でないメッセージと、ほかの拡張から来たメッセージは受け取らない。形のおかしい問い合わせは、エラーを記録して無視する。
  * @param client Worker に問い合わせるもの
  * @param extensionId この拡張の ID（browser.runtime.id）。送り手がこの拡張のときだけ答える
+ * @param onRequest 問い合わせを受けたときに呼ぶ（しばらく使っていないかを見張るため）
  * @returns runtime.onMessage に渡す関数。返事をあとで送るときは true を返す（Chrome の決まり）
  */
 export function createOffscreenListener(
   client: WorkerClient,
   extensionId: string,
+  onRequest: () => void = () => undefined,
 ): (
   message: unknown,
   sender: unknown,
@@ -79,6 +81,7 @@ export function createOffscreenListener(
       log.error('形のおかしい問い合わせが来たので無視しました');
       return undefined;
     }
+    onRequest();
     // onMessage は返事を待てないので、Worker の返事が来たら送る。request は失敗を戻り値で返す
     client
       .request(message)
