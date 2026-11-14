@@ -74,6 +74,8 @@ export interface RubyExportUiOptions {
 
 /** ルビ付きの PDF を作る画面の流れ */
 export interface RubyExportUi {
+  /** 作っている途中なら true */
+  readonly isRunning: boolean;
   /** 「印刷・保存」から作り始める。作っている間・PDF を開いていないときは何もしない */
   start(): void;
   /**
@@ -269,6 +271,9 @@ export function createRubyExportUi(options: RubyExportUiOptions): RubyExportUi {
   close.addEventListener('click', hideNotice);
 
   return {
+    get isRunning() {
+      return running !== undefined;
+    },
     start() {
       if (running !== undefined || options.getDocument() === undefined) return;
       isPrintWanted = false;

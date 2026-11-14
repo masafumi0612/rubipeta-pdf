@@ -16,6 +16,7 @@ import { getSettings, watchSettings } from '@/settings/storage';
 import type { Level } from '@/text/types';
 import { createDirectionEditor } from '@/viewer/direction-editor';
 import { installDrawRecorder } from '@/viewer/draw-recorder';
+import { createIdleCleanup } from '@/viewer/idle-cleanup';
 import {
   formatZoom,
   MAX_ZOOM,
@@ -247,6 +248,14 @@ const rubyExport = createRubyExportUi({
   showPrintNotice: (reason) => {
     printNotice.open(reason);
   },
+});
+// 描く順番の部品（PDFViewer が作る）は、描くのが止まって 30 秒たったら onIdle を呼ぶ（pdf.js の本家と同じ）。
+// そのときに片づける（idle-cleanup.ts）。型の定義では onIdle が null だけなので、形を足して渡す
+(viewer.renderingQueue as unknown as { onIdle: (() => void) | null }).onIdle = createIdleCleanup({
+  viewer,
+  getDocument: () => viewer.pdfDocument ?? undefined,
+  // ルビ付きの PDF を作っている間は、そのページを描いているので片づけない
+  isBusy: () => rubyExport.isRunning,
 });
 const printNotice = createPrintNotice({
   onOpenNative: goNative,
