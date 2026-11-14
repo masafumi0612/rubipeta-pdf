@@ -259,6 +259,10 @@
     "message": "ルビ付きの PDF ができました",
     "description": "ルビ付き PDF ができたときの窓の見出し"
   },
+  "viewer_export_doneNote": {
+    "message": "ほかの人に配ったり、インターネットに載せたりするときは、もとの PDF を作った人の決まり（著作権）に従ってください。",
+    "description": "ルビ付き PDF ができたときの窓の、配るときの注意"
+  },
   "viewer_export_doneText": {
     "message": "［印刷］で印刷の画面を出します。［保存］でダウンロードのフォルダに入れ、［開く］で新しいタブに開きます。",
     "description": "ルビ付き PDF ができたときの窓の説明"

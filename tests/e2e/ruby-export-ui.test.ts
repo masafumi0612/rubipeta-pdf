@@ -110,6 +110,10 @@ test('「印刷・保存」を押したとき、進み具合を出して読み�
   await expect(exportButton(page)).toBeDisabled();
   await expect(doneDialog(page)).toBeVisible({ timeout: EXPORT_TIMEOUT_MS });
   await expect(doneDialog(page)).toContainText('long（ルビ付き）.pdf');
+  // 人に配るときは、もとの PDF の権利者の決まりに従うよう知らせる
+  await expect(doneDialog(page)).toContainText(
+    'もとの PDF を作った人の決まり（著作権）に従ってください',
+  );
   await expect(doneDialog(page).getByRole('button', { name: '印刷', exact: true })).toBeFocused();
   await expect(page.locator('#export-notice')).toBeHidden();
 });

@@ -87,6 +87,8 @@ export function createRubyExportDialog(
   const fileName = element('p', 'print-text export-name');
   const body = element('p', 'print-text', text('viewer_export_doneText'));
   body.id = 'export-dialog-text';
+  // 他人の PDF にルビを付けて配ると、私的使用の範囲を超えることがあるので、配るときの決まりを知らせる
+  const note = element('p', 'print-text export-note', text('viewer_export_doneNote'));
   const failed = element('p', 'print-text export-failed');
   const alert = element('p', 'print-text export-alert');
   alert.setAttribute('role', 'alert');
@@ -108,7 +110,7 @@ export function createRubyExportDialog(
   closeButton.type = 'button';
   const actions = element('div', 'print-actions');
   actions.append(printButton, save, open, closeButton);
-  form.append(title, fileName, body, failed, alert, actions);
+  form.append(title, fileName, body, note, failed, alert, actions);
   dialog.append(form);
   document.body.append(dialog);
 
