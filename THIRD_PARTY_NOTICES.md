@@ -1,6 +1,29 @@
 # THIRD_PARTY_NOTICES
 
-よみがなPDF が使っているライブラリ・辞書・フォントの著作権表示とライセンスです。拡張機能にも同梱しています。
+よみがなPDF が使っているライブラリ・辞書・フォント・データの著作権表示とライセンス、出典です。拡張機能にも同梱しています。
+
+## 漢字のデータ（`kanji.json`・`fuhyo.json`）
+
+漢字の段階（ルビを付けない範囲に使う学年など）・音訓・付表の語は、次の3つの資料から作りました。作り方のくわしいことは、リポジトリの `data/SOURCES.md` にあります（https://github.com/masafumi0612/yomigana-pdf/blob/main/data/SOURCES.md ）。
+
+### 常用漢字表
+
+- 出典：文化庁「常用漢字表」（平成22年内閣告示第2号）https://www.bunka.go.jp/kokugo_nihongo/sisaku/joho/joho/kijun/naikaku/pdf/joyokanjihyo_20101130.pdf
+- 内閣告示なので、著作権の対象ではありません（著作権法第13条）
+- 加工：本表の字・音・訓と、付表の語と読みを取り出しました。例・備考・旧字体などは入れていません
+
+### 音訓の小・中・高等学校段階別割り振り表
+
+- 出典：文部科学省「音訓の小・中・高等学校段階別割り振り表」（平成29年3月）https://www.mext.go.jp/a_menu/shotou/new-cs/__icsFiles/afieldfile/2017/05/15/1385768.pdf
+- 文部科学省ウェブサイト利用規約（https://www.mext.go.jp/b_menu/1351168.htm ）に従って使っています
+- 加工：漢字ごとの学年（小学校の1〜6年。学年別漢字配当表と同じ）だけを取り出しました。この拡張の段階は、文部科学省が作ったものではありません
+
+### kanji-frequency
+
+- 作った人：scriptin
+- 入手先：https://github.com/scriptin/kanji-frequency （コミット `62df9362`）
+- ライセンス：Creative Commons Attribution 4.0 International（CC BY 4.0）https://creativecommons.org/licenses/by/4.0/
+- 加工：青空文庫と Wikipedia の字ごとの数から、常用漢字のうち小学校で習わない 1,110 字を取り出し、2つの順位の平均で並べ直して、上から 350 字を「中1・中2の目安」の中1、次の 400 字を中2、残りを常用漢字にしました。許容字体（叱・填・剥・頬）の数は、正字体の数に足しました。字の数そのものは配っていません
 
 ## kuromoji.js（@patdx/kuromoji）
 
