@@ -10,10 +10,17 @@ import { createRubyPages, type RubyPages, type RubyPageView } from '@/viewer/rub
 
 import { contentOf, unmarkedColumn } from '../pdf/make-items';
 
-// ルビの層は DOM を作るので、置きかえる。ここで確かめるのは、取っておく文と向きだけ
+// ルビの層は DOM を作るので、置きかえる。ここで確かめるのは、取っておく文と向きと、層の持ち方だけ。
+// 層がページから外れたこと（pdf.js がページを片づけたとき）は、isConnected を変えてまねる
+const layerState = vi.hoisted(() => ({ isConnected: true }));
 vi.mock('@/viewer/ruby-layer', () => ({
   RUBY_BAND_CLASS: 'ruby-band',
-  showRubyLayer: () => ({ isConnected: true, remove: () => undefined }),
+  showRubyLayer: () => ({
+    get isConnected() {
+      return layerState.isConnected;
+    },
+    remove: () => undefined,
+  }),
 }));
 
 /** 問い合わせ中の読み */
@@ -119,6 +126,30 @@ async function showFirstPage(pending: PendingRead[], pages: RubyPages): Promise<
 }
 
 describe('createRubyPages', () => {
+  it('pdf.js がページを片づけて層が外れたとき、次にページを描き始めるところで、その層を手放す', async () => {
+    layerState.isConnected = true;
+    const { pending, pages } = setUp();
+    await showFirstPage(pending, pages);
+    expect(pages.shownPages()).toEqual([1]);
+
+    // この単体テストは DOM のない環境で動くので、描き始めの処理が見る Canvas の型だけ用意する
+    vi.stubGlobal(
+      'HTMLCanvasElement',
+      class {
+        readonly kind = 'canvas';
+      },
+    );
+    layerState.isConnected = false;
+    try {
+      pages.handlePageRender({ source: view, pageNumber: 2 });
+
+      expect(pages.shownPages()).toEqual([]);
+    } finally {
+      layerState.isConnected = true;
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('向きを決め直す読みの途中で段階が変わり、向きの読みが先に返ったとき、決めた向きが残る', async () => {
     const { pending, layouts, pages, settings } = setUp();
     await showFirstPage(pending, pages);

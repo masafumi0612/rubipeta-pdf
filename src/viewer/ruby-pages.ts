@@ -130,6 +130,7 @@ interface PageEntry {
   watching: { readonly canvas: HTMLCanvasElement; readonly canvasToPdf: Matrix } | undefined;
   /** 層に出した置き場所 */
   boxes: readonly RubyBox[] | undefined;
+  /** 出している層。pdf.js がページを片づけると、層はページから外れる */
   layer: HTMLDivElement | undefined;
   /** 描き終えた回数。待っている間に描き直されたら、古いほうは出さない */
   renders: number;
@@ -160,6 +161,14 @@ export function createRubyPages(options: RubyPagesOptions): RubyPages {
       entries.set(pageNumber, entry);
     }
     return entry;
+  };
+
+  // pdf.js が片づけたページ（見えなくなったページ）の層は、ページから外れている。また描くときは作り直すので、
+  // 外れた層を持ち続けない（持つと、めくった全ページのルビの要素が残り、メモリが増え続ける）
+  const releaseDetachedLayers = (): void => {
+    for (const entry of entries.values()) {
+      if (entry.layer !== undefined && !entry.layer.isConnected) entry.layer = undefined;
+    }
   };
 
   // 置き場所を出し直したときは、前の層の要素が古いので、層を作り直す
@@ -208,6 +217,7 @@ export function createRubyPages(options: RubyPagesOptions): RubyPages {
 
   const rubyPages: RubyPages = {
     handlePageRender(event) {
+      releaseDetachedLayers();
       const view = options.getPageView(event.pageNumber);
       if (view === undefined || view !== event.source) return;
       const entry = entryOf(event.pageNumber);
