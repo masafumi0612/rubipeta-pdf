@@ -1,6 +1,7 @@
 import { browser } from 'wxt/browser';
 
 import { createLogger } from '@/log';
+import { closeIdleOffscreen, isOffscreenIdleMessage } from '@/messaging/idle-dictionary';
 import { startWelcome } from '@/options/welcome';
 import { type DynamicRuleStore, syncRedirectRules } from '@/redirect/register';
 import { clearSkipRule } from '@/redirect/skip';
@@ -88,6 +89,14 @@ export default defineBackground(() => {
     if (url.origin !== globalThis.location.origin || !url.pathname.startsWith(OPENED_PREFIX))
       return;
     (event as FetchEvent).respondWith(respondOpenedPdf(url));
+  });
+  // 辞書をしばらく使っていないと offscreen document から知らせが来たら、リーダーが開いていなければ閉じる
+  browser.runtime.onMessage.addListener((message, sender) => {
+    if (sender.id !== browser.runtime.id || !isOffscreenIdleMessage(message)) return undefined;
+    closeIdleOffscreen(browser).catch((error: unknown) => {
+      log.error('辞書を閉じるかを決められませんでした', error);
+    });
+    return undefined;
   });
   browser.tabs.onRemoved.addListener((tabId) => {
     clearSkipRule(tabId).catch((error: unknown) => {
