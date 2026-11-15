@@ -31,6 +31,35 @@ function sampleRuby(page: Page): ReturnType<Page['locator']> {
   return page.locator(`.page[data-page-number="1"] .ruby-layer [data-base="${SAMPLE.base}"]`);
 }
 
+/**
+ * Web 版が IndexedDB に残した、ルビの量の設定を読む（src/web/indexed-db.ts と同じ名前で開く）。
+ * @param page Web 版の画面
+ * @returns 残っている段階。なければ undefined
+ */
+async function storedLevel(page: Page): Promise<unknown> {
+  return page.evaluate(
+    async () =>
+      new Promise<unknown>((resolve, reject) => {
+        const opening = indexedDB.open('yomigana-pdf', 1);
+        opening.addEventListener('error', () => {
+          reject(new Error('IndexedDB を開けない'));
+        });
+        opening.addEventListener('success', () => {
+          const reading = opening.result
+            .transaction('items', 'readonly')
+            .objectStore('items')
+            .get('sync:level');
+          reading.addEventListener('error', () => {
+            reject(new Error('IndexedDB を読めない'));
+          });
+          reading.addEventListener('success', () => {
+            resolve(reading.result);
+          });
+        });
+      }),
+  );
+}
+
 test('一番上の URL を開いたとき、リーダーに移る', async ({ page }) => {
   await page.goto('./');
   await expect(page).toHaveURL(/\/viewer\.html$/u);
@@ -56,6 +85,8 @@ test('設定の画面には、自動で開く場所と、PDF を選んで開く�
 test('設定の画面で変えた設定は、読み込み直しても残る', async ({ page }) => {
   await page.goto('options.html');
   await page.getByRole('radio', { name: /^3年まで/ }).check();
+  // 保存は後から終わるので、IndexedDB に書き終えてから読み込み直す（拡張の E2E も、保存先を見てから確かめる）
+  await expect.poll(async () => storedLevel(page)).toBe('g3');
   await page.reload();
   await expect(page.getByRole('radio', { name: /^3年まで/ })).toBeChecked();
 });
