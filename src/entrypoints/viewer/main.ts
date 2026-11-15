@@ -35,6 +35,7 @@ import {
   type VisibleRange,
   visibleRangeOf,
 } from '@/viewer/page-window';
+import { watchPixelSnap } from '@/viewer/pixel-snap';
 import { createPrintNotice, isPrintShortcut } from '@/viewer/print-notice';
 import { createReadingFixDialog } from '@/viewer/reading-fix-dialog';
 import { rubyAmountLabel } from '@/viewer/ruby-amount';
@@ -188,6 +189,8 @@ const viewer = new pdfjsViewer.PDFViewer({
   linkService,
 });
 linkService.setViewer(viewer);
+// 画面の倍率が 125% などのときに字がにじまないよう、紙面の位置を画面の点の境目に合わせる
+watchPixelSnap({ viewer: viewerElement, container, pixelRatio: () => devicePixelRatio });
 // 描いたページごとの、文があるか。文字が画像になっている PDF の案内に使う
 const hasTextByPage = new Map<number, boolean>();
 // 案内を閉じたら、同じ PDF では出し直さない
