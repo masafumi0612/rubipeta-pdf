@@ -375,3 +375,14 @@ test('拡張の版が出る', async ({ page, extensionId }) => {
   const version = await page.evaluate(() => chrome.runtime.getManifest().version);
   await expect(page.getByText(`バージョン ${version} ・ MIT ライセンス`)).toBeVisible();
 });
+
+test('「この拡張について」に、できることの一覧が出る', async ({ page, extensionId }) => {
+  await openOptions(page, extensionId);
+
+  const features = page
+    .getByRole('contentinfo')
+    .getByRole('region', { name: 'よみがなPDF で できること' });
+
+  await expect(features.getByRole('listitem')).toHaveCount(5);
+  await expect(features).toContainText('たて書きの PDF でも、横書きの PDF でも つけられます。');
+});

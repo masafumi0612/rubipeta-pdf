@@ -836,3 +836,24 @@ input {
   gap: var(--gap-small);
   margin: var(--gap-small) 0;
 }
+
+/* この拡張でできることの一覧（入れた直後の案内と「この拡張について」） */
+/* 上の見出しと下の文から少し離し、ひとまとまりに見せる */
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-small);
+  margin-block: var(--gap-small);
+}
+
+.features-title {
+  font-size: var(--font-size);
+}
+
+.features-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-small);
+  padding-left: var(--gap-large);
+  line-height: 1.6;
+}

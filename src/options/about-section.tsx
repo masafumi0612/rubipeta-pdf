@@ -1,6 +1,7 @@
 import type { JSX } from 'preact';
 import { browser } from 'wxt/browser';
 
+import { FeatureList } from './feature-list';
 import { message } from './message';
 import { ReportButton } from './report-button';
 
@@ -11,7 +12,7 @@ const LICENSES_PATH = '/licenses.html';
 const PRIVACY_POLICY_URL = 'https://masafumi0612.github.io/yomigana-pdf/privacy';
 
 /**
- * 「この拡張について」。設定ではなく、拡張の情報（プライバシー・版・ライセンス）と、報告用の情報のコピーを出す。
+ * 「この拡張について」。設定ではなく、拡張の情報（できること・プライバシー・版・ライセンス）と、報告用の情報のコピーを出す。
  * @returns 拡張の情報の場所
  */
 export function AboutSection(): JSX.Element {
@@ -20,6 +21,7 @@ export function AboutSection(): JSX.Element {
       <h2 id="about-title" class="about-title">
         {message('options_about_title')}
       </h2>
+      <FeatureList titleId="about-features-title" />
       <ul class="about-list">
         <li>{message('options_about_privacyLocal')}</li>
         <li>{message('options_about_privacySites')}</li>
