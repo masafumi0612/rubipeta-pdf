@@ -61,8 +61,8 @@ type PdfSource =
 /** PDF の中のリンクに付ける rel。開いた先から、このリーダーを触れないようにする */
 const EXTERNAL_LINK_REL = 'noopener noreferrer nofollow';
 
-/** pdf.js が読む同梱のデータの置き場所（ビルドで node_modules から写す） */
-const ASSET_BASE = location.origin;
+/** pdf.js が読む同梱のデータの置き場所（ビルドで node_modules から写す）。リーダーと同じフォルダ（Web 版は置き場所が一番上とは限らない） */
+const ASSET_BASE = new URL('.', location.href);
 
 /** 始めに設定を読むのを待つ時間の上限（ミリ秒）。過ぎたら既定で始め、PDF を出すのを止めない */
 const SETTINGS_TIMEOUT_MS = 1000;
@@ -431,11 +431,11 @@ async function openSource(source: PdfSource): Promise<void> {
   const previous = currentTask;
   const task = pdfjsLib.getDocument({
     ...input,
-    cMapUrl: `${ASSET_BASE}/cmaps/`,
+    cMapUrl: new URL('cmaps/', ASSET_BASE).href,
     cMapPacked: true,
-    standardFontDataUrl: `${ASSET_BASE}/standard_fonts/`,
-    wasmUrl: `${ASSET_BASE}/wasm/`,
-    iccUrl: `${ASSET_BASE}/iccs/`,
+    standardFontDataUrl: new URL('standard_fonts/', ASSET_BASE).href,
+    wasmUrl: new URL('wasm/', ASSET_BASE).href,
+    iccUrl: new URL('iccs/', ASSET_BASE).href,
     // 拡張の外のフォントを読まない
     useSystemFonts: false,
     // フォントの名前（Mincho・Gothic など）を取れるようにする。ルビを明朝・ゴシックに合わせるのに使う

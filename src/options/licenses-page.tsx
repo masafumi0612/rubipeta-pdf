@@ -9,12 +9,12 @@ import { type Block, type Inline, parseNotices } from './notices-markdown';
 
 const log = createLogger('licenses');
 
-/** 画面に出す同梱の文書の、拡張の中の置き場所。ビルドで拡張に写す（wxt.config.ts） */
+/** 画面に出す同梱の文書の、この画面からの置き場所。ビルドで写す（scripts/public-assets.ts） */
 const FILES = {
-  notices: '/THIRD_PARTY_NOTICES.md',
-  license: '/LICENSE',
-  apache: '/licenses/Apache-2.0.txt',
-  ofl: '/licenses/OFL-1.1.txt',
+  notices: 'THIRD_PARTY_NOTICES.md',
+  license: 'LICENSE',
+  apache: 'licenses/Apache-2.0.txt',
+  ofl: 'licenses/OFL-1.1.txt',
 } as const;
 
 /** 同梱の文書の中身 */

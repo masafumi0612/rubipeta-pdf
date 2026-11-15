@@ -4,8 +4,8 @@ import { browser } from 'wxt/browser';
 import { message } from './message';
 import { ReportButton } from './report-button';
 
-/** 同梱した部品のライセンスと辞書の出典を、読みやすく出す画面（src/entrypoints/licenses） */
-const LICENSES_PATH = '/licenses.html';
+/** 同梱した部品のライセンスと辞書の出典を、読みやすく出す画面（src/entrypoints/licenses）。この画面と同じフォルダにある */
+const LICENSES_PATH = 'licenses.html';
 
 /** プライバシーポリシー。リポジトリの docs/privacy.md を GitHub Pages で公開したもの */
 const PRIVACY_POLICY_URL = 'https://masafumi0612.github.io/yomigana-pdf/privacy';

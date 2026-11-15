@@ -10,7 +10,11 @@ import { createReadingService } from '@/text/reading-service';
  */
 const DICTIONARY_MEASURE = 'yomigana-pdf:dictionary';
 
-const dictionaryUrl = new URL(`/${DICTIONARY_DIR}/`, self.location.origin);
+// 置き場所の一番上（BASE_URL）から引く。Worker のファイルは別のフォルダにあり、Web 版は置き場所が一番上とは限らない
+const dictionaryUrl = new URL(
+  `${import.meta.env.BASE_URL}${DICTIONARY_DIR}/`,
+  self.location.origin,
+);
 const service = createReadingService(async () => {
   const startedAt = performance.now();
   const loaded = await loadTokenizer(createGzipLoader(dictionaryUrl));

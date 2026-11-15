@@ -45,9 +45,9 @@ interface WelcomeCardProps {
  * @returns 案内の場所
  */
 export function WelcomeCard({ onClose }: WelcomeCardProps): JSX.Element {
-  // 見本は拡張の中にあるので、この画面と同じ起点の URL で開ける
+  // 見本は、この画面と同じフォルダの下にある
   const openSample = (): void => {
-    openReader(new URL(`/${SAMPLE_PDF_PATH}`, location.href).href);
+    openReader(new URL(SAMPLE_PDF_PATH, location.href).href);
   };
 
   return (
