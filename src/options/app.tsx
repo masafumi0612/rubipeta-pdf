@@ -1,6 +1,8 @@
 import type { JSX } from 'preact';
 import { useEffect } from 'preact/hooks';
 
+import { isWeb } from '@/platform';
+
 import { AboutSection } from './about-section';
 import { AutoRedirectSection } from './auto-redirect-section';
 import { useElement, useHostAccess, useJumpTarget, useSettings } from './hooks';
@@ -73,10 +75,11 @@ export function App(): JSX.Element {
             }}
           />
         )}
-        {settings !== undefined && (
+        {/* Web 版には、自動で開く仕組みと、サイトの PDF を読む権限がない。PDF はリーダーの画面で選んで開く */}
+        {!isWeb && settings !== undefined && (
           <AutoRedirectSection isEnabled={settings.autoRedirect} hasHostAccess={hasHostAccess} />
         )}
-        <OpenPdfSection />
+        {!isWeb && <OpenPdfSection />}
         {settings !== undefined && (
           <>
             <RubyAmountSection level={settings.level} titleRef={setAmountTitle} />

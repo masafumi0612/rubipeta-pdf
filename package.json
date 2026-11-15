@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "wxt",
     "build": "wxt build",
+    "build:web": "vite build --config vite.web.config.ts --mode web",
     "zip": "wxt zip",
     "postinstall": "wxt prepare",
     "prepare": "simple-git-hooks",
@@ -21,6 +22,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "wxt build && playwright test",
+    "test:e2e:web": "npm run build:web -- --base /yomigana-pdf/ && playwright test --config playwright.web.config.ts",
     "accuracy:local": "vitest run tests/unit/text/reading-accuracy.test.ts --reporter=verbose",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run build",
     "licenses:check": "node scripts/check-licenses.ts",

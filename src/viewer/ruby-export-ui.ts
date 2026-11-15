@@ -8,6 +8,7 @@
 import { browser } from 'wxt/browser';
 
 import { createLogger } from '@/log';
+import { isWeb } from '@/platform';
 import type { Result } from '@/result';
 
 import { type OpenedPdf, storeOpenedPdf } from './opened-pdf';
@@ -96,6 +97,10 @@ export interface RubyExportUi {
  * @returns 置いた PDF。置けなければ undefined
  */
 async function storeOpened(blob: Blob, fileName: string): Promise<OpenedPdf | undefined> {
+  // Web 版には、置いた PDF を名前の付いた URL で渡す service worker がないので、blob の URL で開く
+  if (isWeb) {
+    return undefined;
+  }
   try {
     return await storeOpenedPdf(
       blob,
