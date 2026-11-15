@@ -243,7 +243,7 @@ export function LicensesPage(): JSX.Element {
           {Object.values(FILES).map((path) => (
             <li key={path}>
               <a class="link" href={path} target="_blank" rel="noopener">
-                {path.slice(1)}
+                {path}
               </a>
             </li>
           ))}
