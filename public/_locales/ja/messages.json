@@ -503,6 +503,30 @@
     "message": "変更はすぐ保存され、開いている PDF にも反映されます",
     "description": "設定の画面の見出しの横の、保存のボタンがいらず、開いているリーダーにもすぐ効くことの案内"
   },
+  "options_features_title": {
+    "message": "よみがなPDF で できること",
+    "description": "設定の画面の、この拡張でできることの一覧の見出し。小学生にも読める言葉にする"
+  },
+  "options_features_open": {
+    "message": "PDF を開くと、漢字に ふりがなが つきます。",
+    "description": "できることの1つめ"
+  },
+  "options_features_direction": {
+    "message": "たて書きの PDF でも、横書きの PDF でも つけられます。たて書きなら字の右に、横書きなら字の上に つきます。",
+    "description": "できることの2つめ。縦書きと横書きの両方に付くこと"
+  },
+  "options_features_grade": {
+    "message": "何年生までの漢字か えらぶと、まだ習っていない漢字にだけ つけられます。",
+    "description": "できることの3つめ。ルビの量"
+  },
+  "options_features_fix": {
+    "message": "読みが ちがっていたら、自分で 直せます。",
+    "description": "できることの4つめ。読みの手直し"
+  },
+  "options_features_export": {
+    "message": "ふりがなを つけたまま、保存や 印刷が できます。",
+    "description": "できることの5つめ。印刷・保存"
+  },
   "options_welcome_title": {
     "message": "インストールありがとうございます",
     "description": "初めて入れた直後の案内の見出し"

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { SAMPLE_PDF_PATH } from '@/config';
 import { createLogger } from '@/log';
 
+import { FeatureList } from './feature-list';
 import { message } from './message';
 import { openReader } from './open-pdf-section';
 import { dismissWelcome, getWelcomeShown } from './welcome';
@@ -39,7 +40,7 @@ interface WelcomeCardProps {
 }
 
 /**
- * 初めて入れた直後の案内。スイッチのことを伝え、同梱した見本の PDF を開けるようにする。
+ * 初めて入れた直後の案内。できることを並べ、スイッチのことを伝え、同梱した見本の PDF を開けるようにする。
  * @param props 閉じるときに呼ぶ関数
  * @param props.onClose 「閉じる」を押したときに呼ぶ
  * @returns 案内の場所
@@ -56,6 +57,7 @@ export function WelcomeCard({ onClose }: WelcomeCardProps): JSX.Element {
         <h2 id="welcome-title" class="welcome-title">
           {message('options_welcome_title')}
         </h2>
+        <FeatureList titleId="welcome-features-title" />
         <p class="note">{message('options_welcome_lead')}</p>
       </div>
       <div class="row">
