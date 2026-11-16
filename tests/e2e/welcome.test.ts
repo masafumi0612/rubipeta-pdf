@@ -34,6 +34,20 @@ test('初めて入れたとき、開いた設定の画面に案内が出る', as
   await expect(page.getByText('下のスイッチをオンにしてください')).toBeVisible();
 });
 
+test('入れた直後の案内に、縦書き・横書きの両方に付くことを含めて、できることが出る', async ({
+  context,
+  extensionId,
+}) => {
+  const page = openedOptions(context, extensionId);
+
+  const features = page
+    .getByRole('region', { name: WELCOME_TITLE })
+    .getByRole('region', { name: 'よみがなPDF で できること' });
+
+  await expect(features.getByRole('listitem')).toHaveCount(5);
+  await expect(features).toContainText('たて書きの PDF でも、横書きの PDF でも つけられます。');
+});
+
 test('「見本の PDF で試す」を押したとき、見本がルビ付きでリーダーに開く', async ({
   context,
   extensionId,
