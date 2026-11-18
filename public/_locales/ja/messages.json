@@ -1,6 +1,6 @@
 {
   "manifest_ext_name": {
-    "message": "よみがなPDF",
+    "message": "ルビぺたPDF",
     "description": "拡張機能の名前。Chrome の拡張機能の一覧とストアに出る"
   },
   "manifest_ext_description": {
@@ -8,7 +8,7 @@
     "description": "拡張機能の短い説明。Chrome の拡張機能の一覧に出る（132字まで）"
   },
   "viewer_page_title": {
-    "message": "よみがなPDF",
+    "message": "ルビぺたPDF",
     "description": "リーダーのタブの名前。PDF を開く前に出る"
   },
   "viewer_bar_openFile": {
@@ -488,7 +488,7 @@
     "description": "ルビの量が「常用漢字すべて」のときの説明。リーダーのバーと設定の画面に出す"
   },
   "options_page_title": {
-    "message": "ルビの設定 - よみがなPDF",
+    "message": "ルビの設定 - ルビぺたPDF",
     "description": "設定の画面のタブの名前"
   },
   "options_header_title": {
@@ -504,7 +504,7 @@
     "description": "設定の画面の見出しの横の、保存のボタンがいらず、開いているリーダーにもすぐ効くことの案内"
   },
   "options_features_title": {
-    "message": "よみがなPDF で できること",
+    "message": "ルビぺたPDF で できること",
     "description": "設定の画面の、この拡張でできることの一覧の見出し。小学生にも読める言葉にする"
   },
   "options_features_open": {
@@ -1022,7 +1022,7 @@
     "description": "プライバシーポリシーのページ（ウェブ）を新しいタブで開くリンク"
   },
   "licenses_page_title": {
-    "message": "ライセンスと出典 - よみがなPDF",
+    "message": "ライセンスと出典 - ルビぺたPDF",
     "description": "ライセンスと出典の画面のタブの名前"
   },
   "licenses_header_title": {
@@ -1034,7 +1034,7 @@
     "description": "同梱の文書を読めなかったときに出す"
   },
   "licenses_own_title": {
-    "message": "よみがなPDF",
+    "message": "ルビぺたPDF",
     "description": "この拡張そのもののライセンスの場所の見出し"
   },
   "licenses_own_note": {

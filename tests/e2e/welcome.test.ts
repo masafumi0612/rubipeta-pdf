@@ -42,7 +42,7 @@ test('入れた直後の案内に、縦書き・横書きの両方に付くこ�
 
   const features = page
     .getByRole('region', { name: WELCOME_TITLE })
-    .getByRole('region', { name: 'よみがなPDF で できること' });
+    .getByRole('region', { name: 'ルビぺたPDF で できること' });
 
   await expect(features.getByRole('listitem')).toHaveCount(5);
   await expect(features).toContainText('たて書きの PDF でも、横書きの PDF でも つけられます。');

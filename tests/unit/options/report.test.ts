@@ -42,7 +42,7 @@ describe('buildReport', () => {
   it('エラーがないとき、版と「なし」だけを入れる', () => {
     expect(
       buildReport({ extensionVersion: '0.1.0', browserVersion: 'Chrome 131.0.0.0', errors: [] }),
-    ).toBe('よみがなPDF 0.1.0\nブラウザ：Chrome 131.0.0.0\n直近のエラー：なし');
+    ).toBe('ルビぺたPDF 0.1.0\nブラウザ：Chrome 131.0.0.0\n直近のエラー：なし');
   });
 
   it('エラーがあるとき、新しい順に時刻・部品・文を入れる', () => {
