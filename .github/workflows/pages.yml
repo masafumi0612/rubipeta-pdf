@@ -1,5 +1,5 @@
 # main に入ったら、docs（プライバシーポリシーなど）と Web 版を GitHub Pages に出す。
-# docs は今までと同じ URL（/yomigana-pdf/・/yomigana-pdf/privacy）、Web 版は /yomigana-pdf/app/ に置く。
+# docs は今までと同じ URL（/rubipeta-pdf/・/rubipeta-pdf/privacy）、Web 版は /rubipeta-pdf/app/ に置く。
 # 使う前に、リポジトリの Settings → Pages の Source を「GitHub Actions」に変える（今は main の docs/ から出している）
 name: Pages
 
@@ -40,7 +40,7 @@ jobs:
           source: ./docs
           destination: ./_site
       - name: Web 版を作る
-        run: npm run build:web -- --base /yomigana-pdf/app/
+        run: npm run build:web -- --base /rubipeta-pdf/app/
       # Jekyll はコンテナの中で動くので、_site の持ち主が root になる
       - name: Web 版を docs の下に置く
         run: sudo cp -r .output/web _site/app
