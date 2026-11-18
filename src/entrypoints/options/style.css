@@ -320,16 +320,15 @@ input {
   background: var(--danger-hover);
 }
 
-.button-text {
-  min-height: var(--control-height);
-  border: 0;
-  padding: 0;
-  background: transparent;
+/* 取り消しにくい操作（設定をもどすなど）のボタン。赤い枠で、押せることと注意が要ることを示す */
+.button-danger-outline {
+  border: 1px solid var(--danger);
+  background: var(--card-background);
   color: var(--danger);
-  cursor: pointer;
 }
 
-.button-text:hover {
+.button-danger-outline:hover {
+  border-color: var(--danger-hover);
   color: var(--danger-hover);
 }
 

@@ -50,15 +50,19 @@ export function ResetSettings(): JSX.Element {
       <button
         ref={setResetButton}
         type="button"
-        class="button-text"
+        class="button button-danger-outline"
         aria-expanded={phase === 'confirm'}
         aria-controls="reset-confirm"
+        aria-describedby="reset-note"
         onClick={() => {
           setPhase('confirm');
         }}
       >
         {message('options_reset_button')}
       </button>
+      <p id="reset-note" class="hint">
+        {message('options_reset_note')}
+      </p>
       <div
         id="reset-confirm"
         class="reset-confirm"
