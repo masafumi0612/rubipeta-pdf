@@ -43,11 +43,11 @@ const WARNING_LINES = {
 } as const;
 
 /** ページを描き終えてからルビの層を出すまでの名前（src/viewer/ruby-pages.ts） */
-const RUBY_LAYER_MEASURE = 'yomigana-pdf:ruby-layer';
+const RUBY_LAYER_MEASURE = 'rubipeta-pdf:ruby-layer';
 /** 読みの問い合わせの名前（src/viewer/page-layout.ts） */
-const READINGS_MEASURE = 'yomigana-pdf:readings';
+const READINGS_MEASURE = 'rubipeta-pdf:readings';
 /** 辞書を読み込み終えるまでの名前（src/entrypoints/offscreen/reading.worker.ts） */
-const DICTIONARY_MEASURE = 'yomigana-pdf:dictionary';
+const DICTIONARY_MEASURE = 'rubipeta-pdf:dictionary';
 
 /** 辞書の読み込みを含めて、最初のルビが出るまで待つ時間の上限（ミリ秒） */
 const FIRST_RUBY_TIMEOUT_MS = 15_000;

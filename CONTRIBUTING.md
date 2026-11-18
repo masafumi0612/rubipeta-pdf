@@ -16,7 +16,7 @@
 | `npm run test:e2e`        | ビルドした拡張を Chromium に入れて E2E を動かす                                       |
 | `npm run test-pdfs:check` | リポジトリに入れたテスト用 PDF を確かめる                                             |
 | `npm run licenses:check`  | 拡張に入る部品のライセンスを確かめる                                                  |
-| `npm run accuracy:local`  | 手元の PDF で読みの精度を測る（環境変数 `YOMIGANA_LOCAL_PDF_DIR` があるときだけ）     |
+| `npm run accuracy:local`  | 手元の PDF で読みの精度を測る（環境変数 `RUBIPETA_LOCAL_PDF_DIR` があるときだけ）     |
 | `npm run icons:build`     | 拡張のアイコンの PNG を SVG から作り直す（下の「10. アイコン」）                      |
 | `npm run dev`             | 開発用の Chrome を別の窓で開き、拡張を入れる。コードを直すと自動で入れ直す            |
 | `npm run build`           | 拡張をビルドして `.output/chrome-mv3/` に出す                                         |
