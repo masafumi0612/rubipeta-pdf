@@ -50,7 +50,7 @@ export function browserVersionOf(userAgent: string, brands?: readonly BrandVersi
  */
 export function buildReport(info: ReportInfo): string {
   const lines = [
-    `よみがなPDF ${info.extensionVersion}`,
+    `ルビぺたPDF ${info.extensionVersion}`,
     `ブラウザ：${info.browserVersion}`,
     info.errors.length === 0 ? '直近のエラー：なし' : '直近のエラー（新しい順）：',
   ];
