@@ -117,5 +117,5 @@ test('「印刷・保存」を押したとき、ルビ付きの PDF を作って
 test('ライセンスの画面で、同梱した文書を読める', async ({ page }) => {
   await page.goto('licenses.html');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ライセンスと出典');
-  await expect(page.getByRole('region', { name: 'よみがなPDF' })).toContainText('MIT');
+  await expect(page.getByRole('region', { name: 'ルビぺたPDF' })).toContainText('MIT');
 });

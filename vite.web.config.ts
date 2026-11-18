@@ -22,10 +22,10 @@ const INDEX_HTML = `<!doctype html>
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="refresh" content="0; url=viewer.html" />
-    <title>よみがなPDF</title>
+    <title>ルビぺたPDF</title>
   </head>
   <body>
-    <a href="viewer.html">よみがなPDF を開く</a>
+    <a href="viewer.html">ルビぺたPDF を開く</a>
   </body>
 </html>
 `;
