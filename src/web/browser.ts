@@ -15,7 +15,7 @@ import { createRuntime } from './runtime';
 import { type ChangeChannel, createStorage } from './storage';
 
 /** ほかのタブと、保存した値が変わったことを伝え合う道の名前 */
-const STORAGE_CHANNEL = 'yomigana-pdf-storage';
+const STORAGE_CHANNEL = 'rubipeta-pdf-storage';
 
 /**
  * ほかのタブに伝える道を作る。BroadcastChannel がないブラウザでは、同じタブの中だけで伝える。

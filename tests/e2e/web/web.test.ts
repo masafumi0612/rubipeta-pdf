@@ -40,7 +40,7 @@ async function storedLevel(page: Page): Promise<unknown> {
   return page.evaluate(
     async () =>
       new Promise<unknown>((resolve, reject) => {
-        const opening = indexedDB.open('yomigana-pdf', 1);
+        const opening = indexedDB.open('rubipeta-pdf', 1);
         opening.addEventListener('error', () => {
           reject(new Error('IndexedDB を開けない'));
         });

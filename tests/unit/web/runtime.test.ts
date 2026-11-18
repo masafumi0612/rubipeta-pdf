@@ -24,7 +24,7 @@ function createDeps(): WebRuntimeDeps & {
   const client: WorkerClient = { request };
   return {
     request,
-    baseUrl: new URL('https://example.test/yomigana-pdf/'),
+    baseUrl: new URL('https://example.test/rubipeta-pdf/'),
     version: '1.2.3',
     openTab: vi.fn(),
     connectWorker: vi.fn(() => client),
@@ -35,8 +35,8 @@ describe('createRuntime', () => {
   it('getURL のとき、置き場所の一番上からの URL にする', () => {
     const runtime = createRuntime(createDeps());
 
-    expect(runtime.getURL('/viewer.html')).toBe('https://example.test/yomigana-pdf/viewer.html');
-    expect(runtime.getURL('dict/')).toBe('https://example.test/yomigana-pdf/dict/');
+    expect(runtime.getURL('/viewer.html')).toBe('https://example.test/rubipeta-pdf/viewer.html');
+    expect(runtime.getURL('dict/')).toBe('https://example.test/rubipeta-pdf/dict/');
   });
 
   it('getManifest のとき、版を返す', () => {
@@ -48,7 +48,7 @@ describe('createRuntime', () => {
     await createRuntime(deps).openOptionsPage();
 
     expect(deps.openTab).toHaveBeenCalledWith(
-      'https://example.test/yomigana-pdf/options.html',
+      'https://example.test/rubipeta-pdf/options.html',
       OPTIONS_TARGET,
     );
   });

@@ -1,7 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
 /** Web 版を出す場所。GitHub Pages と同じく、一番上ではない所に置いて確かめる */
-const BASE_PATH = '/yomigana-pdf/';
+const BASE_PATH = '/rubipeta-pdf/';
 const PORT = 4173;
 
 // ビルドした Web 版（.output/web）を、ふつうの Web ページとして Chromium で開いて確かめる（`npm run test:e2e:web`）

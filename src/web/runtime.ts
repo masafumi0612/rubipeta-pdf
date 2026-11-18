@@ -6,9 +6,9 @@ import type { WorkerClient } from '@/messaging/worker';
 import { createEvent, type WebEvent } from './events';
 
 /** Web 版の拡張の ID の代わり（拡張から来たメッセージかを見るところで使う） */
-export const WEB_RUNTIME_ID = 'yomigana-pdf-web';
+export const WEB_RUNTIME_ID = 'rubipeta-pdf-web';
 /** 設定の画面を開くタブの名前。同じ名前なら、開いている設定の画面を使い回す */
-export const OPTIONS_TARGET = 'yomigana-pdf-options';
+export const OPTIONS_TARGET = 'rubipeta-pdf-options';
 /** 設定の画面のページ */
 const OPTIONS_PAGE = 'options.html';
 
@@ -79,7 +79,7 @@ export function createRuntime(deps: WebRuntimeDeps): WebRuntime {
   return {
     id: WEB_RUNTIME_ID,
     getURL,
-    getManifest: () => ({ name: 'yomigana-pdf', version: deps.version }),
+    getManifest: () => ({ name: 'rubipeta-pdf', version: deps.version }),
     openOptionsPage: async () => {
       deps.openTab(getURL(OPTIONS_PAGE), OPTIONS_TARGET);
       return Promise.resolve();

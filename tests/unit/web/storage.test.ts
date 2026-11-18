@@ -187,7 +187,7 @@ describe('createStorage の onChanged', () => {
 
     expect(channel.sent).toEqual([
       {
-        type: 'yomigana-pdf:storage-changed',
+        type: 'rubipeta-pdf:storage-changed',
         area: 'sync',
         changes: { level: { newValue: 'grade3' } },
       },
@@ -200,7 +200,7 @@ describe('createStorage の onChanged', () => {
     const listener = vi.fn();
     storage.onChanged.addListener(listener);
     const changes = { level: { oldValue: 'all', newValue: 'grade3' } };
-    channel.receive({ type: 'yomigana-pdf:storage-changed', area: 'sync', changes });
+    channel.receive({ type: 'rubipeta-pdf:storage-changed', area: 'sync', changes });
 
     expect(listener).toHaveBeenCalledWith(changes, 'sync');
   });
@@ -210,7 +210,7 @@ describe('createStorage の onChanged', () => {
     const storage = createStorage(createMapBackend(), channel);
     const listener = vi.fn();
     storage.onChanged.addListener(listener);
-    channel.receive({ type: 'yomigana-pdf:storage-changed', area: 'other', changes: {} });
+    channel.receive({ type: 'rubipeta-pdf:storage-changed', area: 'other', changes: {} });
     channel.receive('changed');
 
     expect(listener).not.toHaveBeenCalled();
