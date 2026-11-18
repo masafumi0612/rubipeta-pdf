@@ -26,7 +26,7 @@ import { noteTextRotation, textPage, toUpright, uprightContent, uprightFrame } f
 import { storedUserDictionary, type UserDictionaryFeed } from './user-dictionary-feed';
 
 /** 読みの問い合わせにかかった時間を測る名前（performance.measure） */
-export const READINGS_MEASURE = 'yomigana-pdf:readings';
+export const READINGS_MEASURE = 'rubipeta-pdf:readings';
 
 /** 画面に出していないページを、字の位置を取るために描く倍率。小さくしても字の位置は変わらない */
 const OFFSCREEN_SCALE = 0.5;

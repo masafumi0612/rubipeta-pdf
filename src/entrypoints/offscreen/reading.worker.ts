@@ -8,7 +8,7 @@ import { createReadingService } from '@/text/reading-service';
  * 辞書を読み込み終えるまでの時間を測る名前（performance.measure）。
  * 性能を測る E2E（tests/e2e/perf-budget.test.ts）が、この Worker の中から引いて残す
  */
-const DICTIONARY_MEASURE = 'yomigana-pdf:dictionary';
+const DICTIONARY_MEASURE = 'rubipeta-pdf:dictionary';
 
 const dictionaryUrl = new URL(`/${DICTIONARY_DIR}/`, self.location.origin);
 const service = createReadingService(async () => {

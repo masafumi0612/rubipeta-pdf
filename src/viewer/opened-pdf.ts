@@ -11,7 +11,7 @@ const CACHE_NAME = 'opened-pdfs';
 /** Cache Storage のキーの頭。chrome-extension: の URL はキーにできないので、使われない https の URL にする */
 const KEY_BASE = 'https://opened.invalid/';
 /** 置いた時刻を残すヘッダー */
-const CREATED_HEADER = 'x-yomigana-created';
+const CREATED_HEADER = 'x-rubipeta-created';
 /** 置いたままにする長さの上限（ミリ秒）。閉じたリーダーが消せなかったものを片づける */
 const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 /** 印（randomUUID の形） */

@@ -176,7 +176,7 @@ try {
     );
     const root = pdf.add(`<< /Type /Catalog /Pages ${ref(pagesId)} /Lang (ja-JP) >>`);
     const info = pdf.add(
-      `<< /Title ${pdfText(title)} /Creator (yomigana-pdf test-pdfs: ${name}.html) /Producer (scripts/test-pdfs/make.ts) >>`,
+      `<< /Title ${pdfText(title)} /Creator (rubipeta-pdf test-pdfs: ${name}.html) /Producer (scripts/test-pdfs/make.ts) >>`,
     );
     writeFileSync(join(OUT, `${name}.pdf`), pdf.toBuffer(root, info));
 

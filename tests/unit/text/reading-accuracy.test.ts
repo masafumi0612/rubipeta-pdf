@@ -1,8 +1,8 @@
 // PDF の文を、kuromoji から字ごとの分割まで本物の処理に通して、
 // 漢字を含む語のうち字ごとに分けられた割合を測る。
 // - リポジトリのテスト用 PDF（test-pdfs/out）：いつも測る（CI でも動く）
-// - 手元の教材の PDF：環境変数 YOMIGANA_LOCAL_PDF_DIR にフォルダを指定したときだけ測る。
-//   例：YOMIGANA_LOCAL_PDF_DIR=C:/path/to/local-only npm run accuracy:local
+// - 手元の教材の PDF：環境変数 RUBIPETA_LOCAL_PDF_DIR にフォルダを指定したときだけ測る。
+//   例：RUBIPETA_LOCAL_PDF_DIR=C:/path/to/local-only npm run accuracy:local
 //   リポジトリには入れられない PDF なので、CI では飛ばす。PDF の文そのものは出さず、
 //   語の数と、字ごとに分けられなかった語だけを出す
 import { readdirSync, readFileSync } from 'node:fs';
@@ -40,7 +40,7 @@ const REPO_MIN_SPLIT_RATE = 0.922;
  */
 const LOCAL_MIN_SPLIT_RATE = 0.989;
 /** 手元の教材の PDF を置いたフォルダ。リポジトリには入れない PDF なので、指定がなければ測らない */
-const LOCAL_PDF_DIR = process.env.YOMIGANA_LOCAL_PDF_DIR;
+const LOCAL_PDF_DIR = process.env.RUBIPETA_LOCAL_PDF_DIR;
 /** 辞書を読み、PDF をすべて解析し終えるまでの時間の上限（ミリ秒）。手元ではテスト用 PDF で1秒ほど */
 const ANALYZE_TIMEOUT_MS = 120_000;
 const PERCENT = 100;
