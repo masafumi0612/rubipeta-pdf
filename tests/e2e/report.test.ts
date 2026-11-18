@@ -32,7 +32,7 @@ test('「報告用の情報をコピー」を押したとき、版と直近の�
   const copied = await page.evaluate(() => navigator.clipboard.readText());
   // Windows のクリップボードは改行を CRLF にする
   const [first, second] = copied.split(/\r?\n/u);
-  expect([first, second?.startsWith('ブラウザ：Chrom')]).toEqual([`よみがなPDF ${version}`, true]);
+  expect([first, second?.startsWith('ブラウザ：Chrom')]).toEqual([`ルビぺたPDF ${version}`, true]);
   expect(copied).toContain('[viewer] PDF を読めませんでした：Missing PDF');
   expect(copied).not.toContain('example.com');
 });

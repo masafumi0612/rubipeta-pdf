@@ -15,6 +15,7 @@ import { DEFAULT_SETTINGS, type Settings } from '@/settings/model';
 import { getSettings, watchSettings } from '@/settings/storage';
 import type { Level } from '@/text/types';
 import { createDirectionEditor } from '@/viewer/direction-editor';
+import { SAFE_DOCUMENT_OPTIONS } from '@/viewer/document-options';
 import { installDrawRecorder } from '@/viewer/draw-recorder';
 import { createIdleCleanup } from '@/viewer/idle-cleanup';
 import {
@@ -35,6 +36,7 @@ import {
   type VisibleRange,
   visibleRangeOf,
 } from '@/viewer/page-window';
+import { watchPixelSnap } from '@/viewer/pixel-snap';
 import { createPrintNotice, isPrintShortcut } from '@/viewer/print-notice';
 import { createReadingFixDialog } from '@/viewer/reading-fix-dialog';
 import { rubyAmountLabel } from '@/viewer/ruby-amount';
@@ -181,13 +183,20 @@ const linkService = new pdfjsViewer.PDFLinkService({
   externalLinkRel: EXTERNAL_LINK_REL,
 });
 // PDF の中のスクリプトを動かさないため、scriptingManager は渡さない
+// PDF の中のスクリプト（JavaScript）は動かさない。pdf.js は、スクリプトを動かす部品（scriptingManager）を
+// 渡したときだけ動かすので、渡さない。動かすための部品（quickjs）も、拡張に入れていない（wxt.config.ts）
 const viewer = new pdfjsViewer.PDFViewer({
   container,
   viewer: viewerElement,
   eventBus,
   linkService,
 });
+if (viewer.enableScripting) {
+  throw new Error('PDF の中のスクリプトを動かす設定になっています');
+}
 linkService.setViewer(viewer);
+// 画面の倍率が 125% などのときに字がにじまないよう、紙面の位置を画面の点の境目に合わせる
+watchPixelSnap({ viewer: viewerElement, container, pixelRatio: () => devicePixelRatio });
 // 描いたページごとの、文があるか。文字が画像になっている PDF の案内に使う
 const hasTextByPage = new Map<number, boolean>();
 // 案内を閉じたら、同じ PDF では出し直さない
@@ -436,8 +445,7 @@ async function openSource(source: PdfSource): Promise<void> {
     standardFontDataUrl: new URL('standard_fonts/', ASSET_BASE).href,
     wasmUrl: new URL('wasm/', ASSET_BASE).href,
     iccUrl: new URL('iccs/', ASSET_BASE).href,
-    // 拡張の外のフォントを読まない
-    useSystemFonts: false,
+    ...SAFE_DOCUMENT_OPTIONS,
     // フォントの名前（Mincho・Gothic など）を取れるようにする。ルビを明朝・ゴシックに合わせるのに使う
     fontExtraProperties: true,
   });
