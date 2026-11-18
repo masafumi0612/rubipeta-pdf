@@ -4,4 +4,4 @@
 export const DICTIONARY_DIR = 'dict';
 
 /** 拡張の中の、見本の PDF の置き場所。ビルドで test-pdfs/out/sample.pdf から写す */
-export const SAMPLE_PDF_PATH = 'sample/yomigana-sample.pdf';
+export const SAMPLE_PDF_PATH = 'sample/rubipeta-sample.pdf';

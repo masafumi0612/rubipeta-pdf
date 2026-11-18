@@ -12,8 +12,8 @@ import { SubsetFont } from './test-pdfs/subset-font.ts';
 
 /** 作るフォント：元の family（subset-font.ts の名前）・書き出すファイル・新しい family の名前 */
 const OUTPUTS = [
-  { source: 'TP Serif', file: 'ruby-serif.woff2', family: 'Yomigana Ruby Serif' },
-  { source: 'TP Sans', file: 'ruby-sans.woff2', family: 'Yomigana Ruby Sans' },
+  { source: 'TP Serif', file: 'ruby-serif.woff2', family: 'Rubipeta Ruby Serif' },
+  { source: 'TP Sans', file: 'ruby-sans.woff2', family: 'Rubipeta Ruby Sans' },
 ] as const;
 /** 入れる字の範囲（両端を含む）：平仮名・片仮名（小書きの字・濁点つきの字・長音・踊り字を含む） */
 const KANA_RANGES: readonly (readonly [number, number])[] = [

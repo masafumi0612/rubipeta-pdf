@@ -41,7 +41,7 @@ describe('createLogger', () => {
 
   it('debug を出す設定のとき、部品の名前を付けて debug を出す', () => {
     createLogger('test', { isDebugEnabled: true }).debug('途中の様子');
-    expect(spies.debug).toHaveBeenCalledWith('[yomigana-pdf:test]', '途中の様子');
+    expect(spies.debug).toHaveBeenCalledWith('[rubipeta-pdf:test]', '途中の様子');
   });
 
   it('設定を省いたとき、開発のビルドかどうかで debug を出すかを決める', () => {
@@ -54,8 +54,8 @@ describe('createLogger', () => {
     log.info('知らせ');
     log.warn('気になること');
     expect([spies.info.mock.calls, spies.warn.mock.calls]).toEqual([
-      [['[yomigana-pdf:test]', '知らせ']],
-      [['[yomigana-pdf:test]', '気になること']],
+      [['[rubipeta-pdf:test]', '知らせ']],
+      [['[rubipeta-pdf:test]', '気になること']],
     ]);
   });
 

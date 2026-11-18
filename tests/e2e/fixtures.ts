@@ -136,7 +136,7 @@ export const test = base.extend<ExtensionFixtures>({
 function withHostAccess(isAutoRedirectOn: boolean): typeof test {
   return base.extend<ExtensionFixtures>({
     context: async ({ playwright }, use) => {
-      const dir = await mkdtemp(join(tmpdir(), 'yomigana-e2e-'));
+      const dir = await mkdtemp(join(tmpdir(), 'rubipeta-e2e-'));
       await cp(EXTENSION_DIR, dir, { recursive: true });
       const manifestPath = join(dir, 'manifest.json');
       const manifest = JSON.parse(await readFile(manifestPath, 'utf8')) as Record<
@@ -214,8 +214,8 @@ export async function stubPrint(page: Page, isFailing = false): Promise<void> {
   await page.addInitScript((isFailing) => {
     window.print = () => {
       if (isFailing) throw new Error('印刷できない（テスト）');
-      const top = window.top as unknown as { yomiganaPrinted?: string[] };
-      top.yomiganaPrinted = [...(top.yomiganaPrinted ?? []), location.href];
+      const top = window.top as unknown as { rubipetaPrinted?: string[] };
+      top.rubipetaPrinted = [...(top.rubipetaPrinted ?? []), location.href];
     };
   }, isFailing);
 }
@@ -227,6 +227,6 @@ export async function stubPrint(page: Page, isFailing = false): Promise<void> {
  */
 export async function printedUrls(page: Page): Promise<string[]> {
   return page.evaluate(
-    () => (window as unknown as { yomiganaPrinted?: string[] }).yomiganaPrinted ?? [],
+    () => (window as unknown as { rubipetaPrinted?: string[] }).rubipetaPrinted ?? [],
   );
 }
