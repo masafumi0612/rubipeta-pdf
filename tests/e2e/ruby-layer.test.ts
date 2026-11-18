@@ -227,8 +227,8 @@ test('明朝の PDF のとき、ルビが同梱の明朝になる', async ({ pag
 
   const font = await rubyFont(page, '傘');
 
-  expect(font.family).toContain('Yomigana Ruby Serif');
-  expect(font.loaded).toContain('Yomigana Ruby Serif');
+  expect(font.family).toContain('Rubipeta Ruby Serif');
+  expect(font.loaded).toContain('Rubipeta Ruby Serif');
   expect(font.hasGlyphs).toBe(true);
 });
 
@@ -244,8 +244,8 @@ test('ゴシックの PDF のとき、ルビが同梱のゴシックになる', 
 
   const font = await rubyFont(page, '筒');
 
-  expect(font.family).toContain('Yomigana Ruby Sans');
-  expect(font.loaded).toContain('Yomigana Ruby Sans');
+  expect(font.family).toContain('Rubipeta Ruby Sans');
+  expect(font.loaded).toContain('Rubipeta Ruby Sans');
   expect(font.hasGlyphs).toBe(true);
 });
 

@@ -272,7 +272,7 @@ for (const testCase of CASES) {
     let input: Uint8Array = original;
     if (testCase.isShifted === true) input = await shiftAndRotate(original);
     if (testCase.isSideways === true) input = await sideways(original);
-    const dir = await mkdtemp(join(tmpdir(), 'yomigana-export-'));
+    const dir = await mkdtemp(join(tmpdir(), 'rubipeta-export-'));
     try {
       const inputPath = join(dir, 'input.pdf');
       await writeFile(inputPath, input);

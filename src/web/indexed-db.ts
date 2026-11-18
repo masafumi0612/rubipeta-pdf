@@ -2,7 +2,7 @@
 import type { AreaName, StorageBackend } from './storage';
 
 /** データベースの名前と版 */
-const DB_NAME = 'yomigana-pdf';
+const DB_NAME = 'rubipeta-pdf';
 const DB_VERSION = 1;
 /** 値を置く入れ物。キーは `場所:キー` */
 const STORE_NAME = 'items';

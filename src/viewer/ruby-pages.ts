@@ -21,7 +21,7 @@ import { storedUserDictionary, type UserDictionaryFeed } from './user-dictionary
 const RENDERING_FINISHED = 3;
 
 /** ページを描き終えてから、ルビの層を出すまでの時間を測る名前（performance.measure） */
-export const RUBY_LAYER_MEASURE = 'yomigana-pdf:ruby-layer';
+export const RUBY_LAYER_MEASURE = 'rubipeta-pdf:ruby-layer';
 
 /** pdf.js のページの表示（PDFPageView）のうち、使うところ */
 export interface RubyPageView {

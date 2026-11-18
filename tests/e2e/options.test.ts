@@ -364,7 +364,7 @@ test('「プライバシーポリシー」のリンクが、公開している�
 
   const link = page.getByRole('link', { name: 'プライバシーポリシー' });
 
-  await expect(link).toHaveAttribute('href', 'https://masafumi0612.github.io/yomigana-pdf/privacy');
+  await expect(link).toHaveAttribute('href', 'https://masafumi0612.github.io/rubipeta-pdf/privacy');
   await expect(link).toHaveAttribute('target', '_blank');
   await expect(link).toHaveAttribute('rel', 'noopener');
 });

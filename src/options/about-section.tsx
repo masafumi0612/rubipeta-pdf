@@ -9,7 +9,7 @@ import { ReportButton } from './report-button';
 const LICENSES_PATH = 'licenses.html';
 
 /** プライバシーポリシー。リポジトリの docs/privacy.md を GitHub Pages で公開したもの */
-const PRIVACY_POLICY_URL = 'https://masafumi0612.github.io/yomigana-pdf/privacy';
+const PRIVACY_POLICY_URL = 'https://masafumi0612.github.io/rubipeta-pdf/privacy';
 
 /**
  * 「この拡張について」。設定ではなく、拡張の情報（できること・プライバシー・版・ライセンス）と、報告用の情報のコピーを出す。

@@ -69,7 +69,7 @@ let storeQueue: Promise<unknown> = Promise.resolve();
  */
 export function createLogger(scope: string, options: LoggerOptions = {}): Logger {
   const isDebugEnabled = options.isDebugEnabled ?? import.meta.env.DEV;
-  const prefix = `[yomigana-pdf:${scope}]`;
+  const prefix = `[rubipeta-pdf:${scope}]`;
   return {
     debug(message) {
       if (isDebugEnabled) {

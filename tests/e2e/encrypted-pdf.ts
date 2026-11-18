@@ -51,7 +51,7 @@ const pad = (password: string): Buffer =>
  * @returns PDF のバイト列
  */
 export function buildEncryptedPdf(password: string): Buffer {
-  const id = md5(Buffer.from('yomigana-pdf-e2e'));
+  const id = md5(Buffer.from('rubipeta-pdf-e2e'));
   const owner = rc4(md5(pad(`owner-${password}`)).subarray(0, KEY_LENGTH), pad(password));
   const key = md5(pad(password), owner, PERMISSIONS, id).subarray(0, KEY_LENGTH);
   const user = rc4(key, PADDING);

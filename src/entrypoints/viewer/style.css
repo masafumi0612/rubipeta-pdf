@@ -1,12 +1,12 @@
 /* ルビ用の仮名だけのフォント（Noto Serif JP・Noto Sans JP の部分集合。SIL OFL 1.1）。拡張に同梱し、外からは読まない */
 @font-face {
-  font-family: 'Yomigana Ruby Serif';
+  font-family: 'Rubipeta Ruby Serif';
   src: url('../../assets/fonts/ruby-serif.woff2') format('woff2');
   font-weight: 400;
 }
 
 @font-face {
-  font-family: 'Yomigana Ruby Sans';
+  font-family: 'Rubipeta Ruby Sans';
   src: url('../../assets/fonts/ruby-sans.woff2') format('woff2');
   font-weight: 400;
 }
@@ -51,8 +51,8 @@
   --menu-padding: 4px;
   --font-size: 14px;
   --font-family: system-ui, sans-serif;
-  --ruby-font-serif: 'Yomigana Ruby Serif', serif;
-  --ruby-font-sans: 'Yomigana Ruby Sans', sans-serif;
+  --ruby-font-serif: 'Rubipeta Ruby Serif', serif;
+  --ruby-font-sans: 'Rubipeta Ruby Sans', sans-serif;
   --ruby-band: #ffffff;
   --amount-background: #3c4f6e;
   --amount-hover: #4a5f82;

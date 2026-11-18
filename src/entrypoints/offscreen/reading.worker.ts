@@ -8,7 +8,7 @@ import { createReadingService } from '@/text/reading-service';
  * 辞書を読み込み終えるまでの時間を測る名前（performance.measure）。
  * 性能を測る E2E（tests/e2e/perf-budget.test.ts）が、この Worker の中から引いて残す
  */
-const DICTIONARY_MEASURE = 'yomigana-pdf:dictionary';
+const DICTIONARY_MEASURE = 'rubipeta-pdf:dictionary';
 
 // 置き場所の一番上（BASE_URL）から引く。Worker のファイルは別のフォルダにあり、Web 版は置き場所が一番上とは限らない
 const dictionaryUrl = new URL(

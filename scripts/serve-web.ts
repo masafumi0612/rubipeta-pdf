@@ -1,13 +1,13 @@
 // ビルドした Web 版（.output/web）を、手元で GitHub Pages と同じように出すだけのサーバー。
 // 辞書の .gz は、Pages と同じく、そのまま（Content-Encoding を付けずに）返す（vite preview は付けてしまい、辞書を読めない）。
-// 使い方：node scripts/serve-web.ts [ポート] [置き場所]（既定は 4173 と /yomigana-pdf/）
+// 使い方：node scripts/serve-web.ts [ポート] [置き場所]（既定は 4173 と /rubipeta-pdf/）
 import { readFile, stat } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { extname, join, normalize, sep } from 'node:path';
 
 const OUT_DIR = join(import.meta.dirname, '..', '.output', 'web');
 const port = Number(process.argv[2] ?? '4173');
-const basePath = process.argv[3] ?? '/yomigana-pdf/';
+const basePath = process.argv[3] ?? '/rubipeta-pdf/';
 
 /** 拡張子ごとの種類 */
 const CONTENT_TYPES: Readonly<Record<string, string>> = {

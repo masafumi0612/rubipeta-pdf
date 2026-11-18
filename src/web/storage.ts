@@ -83,7 +83,7 @@ export interface WebStorage {
 }
 
 /** ほかのタブに送る知らせの種類 */
-const CHANGED_TYPE = 'yomigana-pdf:storage-changed';
+const CHANGED_TYPE = 'rubipeta-pdf:storage-changed';
 const AREAS: readonly AreaName[] = ['local', 'sync', 'session'];
 
 /** ほかのタブに送る知らせ */

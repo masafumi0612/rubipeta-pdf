@@ -1,6 +1,6 @@
 // Web 版のビルド：拡張と同じリーダー・設定の画面を、ふつうの Web ページとして出す（`npm run build:web`）。
 // 拡張の API（`wxt/browser`）は、Web ページでできる形の代わり（src/web/）に差し替える。
-// 置き場所は `--base` で変えられる（既定は一番上。GitHub Pages なら `/yomigana-pdf/`）
+// 置き場所は `--base` で変えられる（既定は一番上。GitHub Pages なら `/rubipeta-pdf/`）
 import { copyFile, mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
@@ -38,7 +38,7 @@ const INDEX_HTML = `<!doctype html>
  */
 function replaceExtensionApi(replacement: string): Plugin {
   return {
-    name: 'yomigana-pdf:replace-extension-api',
+    name: 'rubipeta-pdf:replace-extension-api',
     enforce: 'pre',
     resolveId: (source) => (source === 'wxt/browser' ? replacement : undefined),
   };
@@ -50,7 +50,7 @@ function replaceExtensionApi(replacement: string): Plugin {
  */
 function arrangeOutput(): Plugin {
   return {
-    name: 'yomigana-pdf:arrange-output',
+    name: 'rubipeta-pdf:arrange-output',
     apply: 'build',
     async writeBundle() {
       for (const page of PAGES) {
