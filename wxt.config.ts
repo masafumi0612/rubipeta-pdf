@@ -1,24 +1,7 @@
-import { readdirSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { defineConfig } from 'wxt';
 
-import { DICTIONARY_DIR, SAMPLE_PDF_PATH } from './src/config';
+import { listPublicAssets } from './scripts/public-assets';
 
-/** @patdx/kuromoji のフォルダ（IPADIC の辞書（gzip）とライセンスの文が入っている） */
-const KUROMOJI_DIR = join(import.meta.dirname, 'node_modules', '@patdx', 'kuromoji');
-/** 設定の画面の「見本の PDF で試す」で開く PDF。自分で書いた文と OFL のフォントだけで作ったもの（test-pdfs/README.md） */
-const SAMPLE_PDF = join(import.meta.dirname, 'test-pdfs', 'out', 'sample.pdf');
-/** pdfjs-dist のフォルダ（CMap・標準フォント情報などのデータが入っている） */
-const PDFJS_DIR = join(import.meta.dirname, 'node_modules', 'pdfjs-dist');
-/**
- * pdf.js が読むデータ。外から読まずに済むよう、ビルドで node_modules から拡張に写す。
- * wasm は、wasm が使えないとき用の JS と、PDF の中のスクリプトを動かす部品（quickjs）を入れない。
- * そのため、manifest の CSP で wasm を認める（content_security_policy）
- */
-const PDFJS_ASSET_DIRS = ['cmaps', 'standard_fonts', 'iccs', 'wasm'];
-const isPdfjsAssetIncluded = (file: string): boolean =>
-  !file.startsWith('quickjs') && !file.endsWith('.js');
 /** ツールバーのアイコン。PNG は scripts/build-icons.ts が src/assets/icon/ の SVG から作る */
 const ACTION_ICONS = {
   16: 'icon/16.png',
@@ -46,6 +29,7 @@ export default defineConfig({
     // 他のサイトの PDF の移し先として、ページ全体や枠の中でリーダーを開けるようにする
     web_accessible_resources: [{ resources: ['viewer.html'], matches: ['<all_urls>'] }],
     // pdf.js は、白黒の画像（JBIG2）・JPEG 2000 の画像・色の変換（ICC）を wasm で読む。
+    // wasm が使えないとき用の JS は入れない（scripts/public-assets.ts）。
     // 拡張の決まりの CSP は wasm を認めないので、wasm だけを足す（ほかは決まりのまま）
     content_security_policy: {
       extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';",
@@ -56,38 +40,9 @@ export default defineConfig({
     action: { default_icon: ACTION_ICONS },
   },
   hooks: {
-    // 辞書・pdf.js のデータはリポジトリに入れず、ビルドのたびに node_modules から写す。
-    // 辞書を配るときは、著作権表示とライセンスの文も一緒に配る
+    // 辞書・pdf.js のデータ・ライセンスの文などを写す。Web 版（vite.web.config.ts）と同じ一覧を使う
     'build:publicAssets': (_wxt, files) => {
-      const dictionaryDir = join(KUROMOJI_DIR, 'dict');
-      for (const name of readdirSync(dictionaryDir)) {
-        files.push({
-          absoluteSrc: join(dictionaryDir, name),
-          relativeDest: `${DICTIONARY_DIR}/${name}`,
-        });
-      }
-      for (const dir of PDFJS_ASSET_DIRS) {
-        for (const file of readdirSync(join(PDFJS_DIR, dir)).filter(isPdfjsAssetIncluded)) {
-          files.push({ absoluteSrc: join(PDFJS_DIR, dir, file), relativeDest: `${dir}/${file}` });
-        }
-      }
-      files.push(
-        { absoluteSrc: SAMPLE_PDF, relativeDest: SAMPLE_PDF_PATH },
-        {
-          absoluteSrc: join(import.meta.dirname, 'THIRD_PARTY_NOTICES.md'),
-          relativeDest: 'THIRD_PARTY_NOTICES.md',
-        },
-        { absoluteSrc: join(import.meta.dirname, 'LICENSE'), relativeDest: 'LICENSE' },
-        {
-          absoluteSrc: join(KUROMOJI_DIR, 'LICENSE-2.0.txt'),
-          relativeDest: 'licenses/Apache-2.0.txt',
-        },
-        // ルビのフォント（仮名だけの部分集合）の著作権表示とライセンスの文
-        {
-          absoluteSrc: join(import.meta.dirname, 'src', 'assets', 'fonts', 'OFL.txt'),
-          relativeDest: 'licenses/OFL-1.1.txt',
-        },
-      );
+      files.push(...listPublicAssets(import.meta.dirname));
     },
   },
 });
