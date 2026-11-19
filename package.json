@@ -1,6 +1,6 @@
 {
   "name": "rubipeta-pdf",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "PDF の漢字にふりがな（ルビ）を自動で付ける Chrome 拡張機能",
   "license": "MIT",
