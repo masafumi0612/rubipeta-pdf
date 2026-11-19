@@ -78,7 +78,7 @@
     "description": "リーダーの紙面の場所の名前（読み上げ用）"
   },
   "viewer_main_empty": {
-    "message": "PDF を開いてください。「ファイルを開く」で選ぶか、この画面に PDF をドラッグします。",
+    "message": "PDF を開いてください。「ファイルを開く」で選ぶか、この画面に PDF をドラッグしてください。",
     "description": "リーダーで PDF をまだ開いていないときの案内"
   },
   "viewer_main_loading": {
@@ -260,7 +260,7 @@
     "description": "ルビ付き PDF ができたときの窓の見出し"
   },
   "viewer_export_doneNote": {
-    "message": "ほかの人に配ったり、インターネットに載せたりするときは、もとの PDF を作った人の決まり（著作権）に従ってください。",
+    "message": "他の人に配ったり、インターネットに載せたりするときは、もとの PDF を作った人の決まり（著作権）に従ってください。",
     "description": "ルビ付き PDF ができたときの窓の、配るときの注意"
   },
   "viewer_export_doneText": {
@@ -268,7 +268,7 @@
     "description": "ルビ付き PDF ができたときの窓の説明"
   },
   "viewer_export_failedPages": {
-    "message": "$PAGES$ ページはルビなしです（読みを出せませんでした）。",
+    "message": "$PAGES$ ページはルビなしです（読み方を調べられませんでした）。",
     "description": "読みを出せず、ルビを付けずに作ったページがあるときの知らせ",
     "placeholders": {
       "pages": {
@@ -278,7 +278,7 @@
     }
   },
   "viewer_export_failedPagesMany": {
-    "message": "$PAGES$ など $COUNT$ ページはルビなしです（読みを出せませんでした）。",
+    "message": "$PAGES$ など $COUNT$ ページはルビなしです（読み方を調べられませんでした）。",
     "description": "読みを出せなかったページが多いとき、初めのいくつかだけ挙げる知らせ",
     "placeholders": {
       "pages": {
@@ -350,7 +350,7 @@
     "description": "読みを直す窓の、読みの欄の名前"
   },
   "viewer_fix_note": {
-    "message": "直した読みは、ほかの PDF でも使います。設定画面の「直した読み」で一覧を見られます。",
+    "message": "直したルビは、他の PDF でも使われます。設定の画面の「直したルビ」で一覧を見ることができます。",
     "description": "読みを直す窓の下の説明"
   },
   "viewer_fix_save": {
@@ -366,7 +366,7 @@
     "description": "読みを直す窓の、直した読みを消すボタン（直した読みのある語のときだけ出す）"
   },
   "viewer_fix_surfaceInvalid": {
-    "message": "この言葉は、直した読みに入れられません（漢字を含む $COUNT$ 字までの言葉だけ入れられます）。",
+    "message": "この言葉は、直したルビに登録できません（漢字を含む $COUNT$ 字までの言葉だけ登録できます）。",
     "description": "ルビのもとになった語が、直した読みの決まりに合わないときに出す",
     "placeholders": {
       "count": {
@@ -560,7 +560,7 @@
     "description": "スイッチがオンのときの説明"
   },
   "options_auto_noteOff": {
-    "message": "オフ：PDF は Chrome のふつうの表示で開きます。オンにすると、Chrome が「すべてのサイト」へのアクセスの許可を求めます。PDF を見分けるためだけに使い、ページの中身は読み取りも送信もしません。",
+    "message": "オフ：PDF は Chrome のふつうの表示で開きます。オンにすると、Chrome が「すべてのサイト」へのアクセスの許可を求めます。PDF を見分けるためだけに使い、ページの中身を読み取ったり送ったりすることはありません。",
     "description": "スイッチがオフのときの説明"
   },
   "options_file_label": {
@@ -652,7 +652,7 @@
     "description": "ルビの量（段階）を選ぶ場所の見出し"
   },
   "options_amount_lead": {
-    "message": "選んだ範囲までの漢字にはルビを付けず、それより上の漢字にだけ付けます。",
+    "message": "選んだ範囲までの漢字にはルビを付けず、それより上の漢字にだけルビを付けます。",
     "description": "ルビの量を選ぶ場所の説明"
   },
   "options_amount_current": {
@@ -730,7 +730,7 @@
     "description": "1つめの種類の見本。｜字《ルビ》の形でルビを付ける"
   },
   "options_amount_jukujikun": {
-    "message": "語全体で特別に読む言葉",
+    "message": "特別な読み方をする言葉",
     "description": "段階に関係なくルビが付く文字の種類（2つめ）"
   },
   "options_amount_jukujikunTerm": {
@@ -822,15 +822,15 @@
     "description": "縦書きの見本の文。｜字《ルビ》の形でルビを付け、改行で列を分ける"
   },
   "options_dict_title": {
-    "message": "直した読み",
+    "message": "直したルビ",
     "description": "直した読みの場所の見出し"
   },
   "options_dict_lead": {
-    "message": "PDF のルビを右クリック（長押し）して「読みを直す」を選ぶと、ここに入ります。ここで読みを変えたり、言葉を足したりもできます。直した読みは、ほかの PDF でも使われます。",
+    "message": "PDF のルビを右クリック（長押し）して「読みを直す」を選ぶと、ここに入ります。ここで読み方を変えたり、言葉を足したりすることもできます。直したルビは、他の PDF でも使われます。",
     "description": "直した読みの場所の説明"
   },
   "options_dict_local": {
-    "message": "直した読みが多くなったため、このパソコンの Chrome だけに保存しています。ほかの Chrome には共有されません。",
+    "message": "直したルビが多くなったため、このパソコンの Chrome だけに保存しています。他の Chrome には共有されません。",
     "description": "直した読みを storage.sync に入れられず、storage.local に移したときに出す"
   },
   "options_dict_empty": {
@@ -908,7 +908,7 @@
     "description": "言葉と読みを足すボタン"
   },
   "options_dict_addHint": {
-    "message": "クラスの友だちの名前など、PDF を開く前に足しておけます。",
+    "message": "クラスの友だちの名前など、PDF を開く前に足しておくことができます。",
     "description": "言葉と読みを足す欄の下の説明"
   },
   "options_dict_surfaceEmpty": {
@@ -978,7 +978,7 @@
     }
   },
   "options_dict_saveFailed": {
-    "message": "保存できませんでした。もう一度ためしてください。",
+    "message": "保存できませんでした。もう一度試してください。",
     "description": "直した読みを保存できなかったときに出す"
   },
   "options_reset_button": {
@@ -1010,20 +1010,16 @@
     "description": "設定の画面のいちばん下の、拡張の情報の見出し"
   },
   "options_about_privacyLocal": {
-    "message": "読んだ PDF の中身は、外部に送りません。漢字の読みはこのパソコンの中で調べます。",
+    "message": "開いた PDF の中身を外部に送ることはありません。漢字の読みは、このパソコンの中で調べます。",
     "description": "プライバシーの説明の1つめ"
   },
   "options_about_privacySites": {
-    "message": "「すべてのサイト」へのアクセスは、PDF を見分けるためだけに使います。ページの中身は読み取りも送信もしません。",
+    "message": "「すべてのサイト」へのアクセスは、PDF を見分けるためだけに使います。ページの中身を読み取ったり送ったりすることはありません。",
     "description": "プライバシーの説明の2つめ"
   },
   "options_about_privacySync": {
-    "message": "設定と直した読みは、同じアカウントでログインした Chrome どうしで共有されます。",
+    "message": "設定と直したルビは、同じ Google アカウントでログインした Chrome の間で共有されます。",
     "description": "プライバシーの説明の3つめ"
-  },
-  "options_about_privacyProfiles": {
-    "message": "きょうだいで同じパソコンを使うときは、Chrome のプロフィールを人ごとに分けてください。",
-    "description": "プライバシーの説明の4つめ"
   },
   "options_about_licenses": {
     "message": "ライセンスと出典",

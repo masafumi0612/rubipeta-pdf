@@ -147,7 +147,7 @@ test('読みを変えて決めたとき、ルビが変わり、設定の画面�
   const options = await context.newPage();
   await options.goto(`chrome-extension://${extensionId}/options.html`);
   await expect(
-    options.getByRole('list', { name: '直した読み' }).getByRole('listitem').filter({
+    options.getByRole('list', { name: '直したルビ' }).getByRole('listitem').filter({
       hasText: SURFACE,
     }),
   ).toHaveCount(1);

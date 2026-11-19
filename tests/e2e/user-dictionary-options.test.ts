@@ -30,12 +30,12 @@ async function openOptions(page: Page, extensionId: string): Promise<void> {
 }
 
 /**
- * 「直した読み」の一覧を引く。
+ * 「直したルビ」の一覧を引く。
  * @param page 設定の画面
  * @returns 一覧
  */
 function dictionaryList(page: Page): Locator {
-  return page.getByRole('list', { name: '直した読み' });
+  return page.getByRole('list', { name: '直したルビ' });
 }
 
 /**

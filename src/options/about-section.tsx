@@ -26,7 +26,6 @@ export function AboutSection(): JSX.Element {
         <li>{message('options_about_privacyLocal')}</li>
         <li>{message('options_about_privacySites')}</li>
         <li>{message('options_about_privacySync')}</li>
-        <li>{message('options_about_privacyProfiles')}</li>
       </ul>
       <p class="about-links">
         <a class="link" href={PRIVACY_POLICY_URL} target="_blank" rel="noopener">
