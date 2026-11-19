@@ -369,6 +369,22 @@ test('「プライバシーポリシー」のリンクが、公開している�
   await expect(link).toHaveAttribute('rel', 'noopener');
 });
 
+test('「不具合・ご要望を送る」のリンクが、問い合わせのフォームを新しいタブで開く', async ({
+  page,
+  extensionId,
+}) => {
+  await openOptions(page, extensionId);
+
+  const link = page.getByRole('link', { name: '不具合・ご要望を送る' });
+
+  await expect(link).toHaveAttribute(
+    'href',
+    'https://docs.google.com/forms/d/e/1FAIpQLSc-czPINNPChVXNNzI-F_B5rF5f7_TrBqj9NirwJOoPlRog-Q/viewform',
+  );
+  await expect(link).toHaveAttribute('target', '_blank');
+  await expect(link).toHaveAttribute('rel', 'noopener');
+});
+
 test('拡張の版が出る', async ({ page, extensionId }) => {
   await openOptions(page, extensionId);
 

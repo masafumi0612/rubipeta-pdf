@@ -8,6 +8,10 @@ import { ReportButton } from './report-button';
 /** 同梱した部品のライセンスと辞書の出典を、読みやすく出す画面（src/entrypoints/licenses） */
 const LICENSES_PATH = '/licenses.html';
 
+/** 不具合・要望の問い合わせのフォーム（Google フォーム。GitHub のアカウントがなくても送れる） */
+const CONTACT_FORM_URL =
+  'https://docs.google.com/forms/d/e/1FAIpQLSc-czPINNPChVXNNzI-F_B5rF5f7_TrBqj9NirwJOoPlRog-Q/viewform';
+
 /** プライバシーポリシー。リポジトリの docs/privacy.md を GitHub Pages で公開したもの */
 const PRIVACY_POLICY_URL = 'https://masafumi0612.github.io/rubipeta-pdf/privacy';
 
@@ -28,6 +32,9 @@ export function AboutSection(): JSX.Element {
         <li>{message('options_about_privacySync')}</li>
       </ul>
       <p class="about-links">
+        <a class="link" href={CONTACT_FORM_URL} target="_blank" rel="noopener">
+          {message('options_about_contactForm')}
+        </a>
         <a class="link" href={PRIVACY_POLICY_URL} target="_blank" rel="noopener">
           {message('options_about_privacyPolicy')}
         </a>
