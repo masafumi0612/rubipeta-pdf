@@ -1,2 +1,7 @@
 # ひな形を使わない Issue も書けるようにしておく（質問など）
 blank_issues_enabled: true
+# GitHub のアカウントがない人や、だれでも見られる場所に書きたくない人のために、フォームも案内する
+contact_links:
+  - name: 不具合・ご要望のフォーム
+    url: https://docs.google.com/forms/d/e/1FAIpQLSc-czPINNPChVXNNzI-F_B5rF5f7_TrBqj9NirwJOoPlRog-Q/viewform
+    about: GitHub のアカウントがなくても送れます。送った内容は開発者だけが確認します。
