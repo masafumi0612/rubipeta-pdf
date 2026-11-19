@@ -11,6 +11,20 @@ import { message } from './message';
 
 const log = createLogger('options');
 
+/**
+ * 「PDF を開いたら、自動でルビを付ける」をオンにする。すべてのサイトを読む許可を求め、許可されたらスイッチを保存する。
+ * 許可を求める画面は、押した操作の中で呼ばないと出ないので、ボタンを押したときにそのまま呼ぶ。
+ * @returns 許可されてオンにしたなら true
+ */
+export async function turnOnAutoRedirect(): Promise<boolean> {
+  // ほかを待つ前に呼ぶ（待つと、押した操作の中でなくなり、許可の画面が出ない）
+  const isGranted = await browser.permissions.request(ALL_SITES);
+  if (isGranted) {
+    await updateSettings({ autoRedirect: true });
+  }
+  return isGranted;
+}
+
 /** 「PDF を開いたら、自動でルビを付ける」の場所に渡すもの */
 export interface AutoRedirectSectionProps {
   /** 保存してあるスイッチの値 */
@@ -45,14 +59,7 @@ export function AutoRedirectSection({
       return;
     }
     setIsAsking(true);
-    // 許可を求める画面は、押した操作の中で呼ばないと出ない。ほかを待つ前に呼ぶ
-    browser.permissions
-      .request(ALL_SITES)
-      .then(async (isGranted) => {
-        if (isGranted) {
-          await updateSettings({ autoRedirect: true });
-        }
-      })
+    turnOnAutoRedirect()
       .catch((error: unknown) => {
         log.error('スイッチをオンにするのに失敗しました', error);
       })

@@ -1,7 +1,7 @@
 import type { BrowserContext, Page } from '@playwright/test';
 
 import { SAMPLE_PDF_PATH } from '../../src/config';
-import { expect, test } from './fixtures';
+import { expect, hostAccessTest, test } from './fixtures';
 
 /** 入れた直後の案内の見出し */
 const WELCOME_TITLE = 'インストールありがとうございます';
@@ -31,8 +31,27 @@ test('初めて入れたとき、開いた設定の画面に案内が出る', as
   const page = openedOptions(context, extensionId);
 
   await expect(page.getByRole('heading', { level: 2, name: WELCOME_TITLE })).toBeVisible();
-  await expect(page.getByText('下のスイッチをオンにしてください')).toBeVisible();
+  await expect(page.getByText('［自動でルビを付けるようにする］を押してください')).toBeVisible();
+  await expect(page.getByRole('button', { name: '自動でルビを付けるようにする' })).toBeVisible();
 });
+
+hostAccessTest(
+  '入れた直後の案内で「自動でルビを付けるようにする」を押したとき、スイッチがオンになり、ボタンが消える',
+  async ({ context, extensionId }) => {
+    const page = openedOptions(context, extensionId);
+    const turnOn = page.getByRole('button', { name: '自動でルビを付けるようにする' });
+
+    await turnOn.click();
+
+    await expect(
+      page.getByRole('switch', { name: 'PDF を開いたら、自動でルビを付ける' }),
+    ).toHaveAttribute('aria-checked', 'true');
+    await expect(turnOn).toHaveCount(0);
+    await expect(page.getByRole('region', { name: WELCOME_TITLE })).toContainText(
+      'Web の PDF のリンクを押すと、自動でルビ付きで開きます。',
+    );
+  },
+);
 
 test('入れた直後の案内に、縦書き・横書きの両方に付くことを含めて、できることが出る', async ({
   context,
