@@ -532,8 +532,16 @@
     "description": "初めて入れた直後の案内の見出し"
   },
   "options_welcome_lead": {
-    "message": "PDF を開くたびに自動でルビを付けるには、下のスイッチをオンにしてください。ルビの量は、あとからいつでも変えられます（最初は、すべての漢字にルビ）。",
-    "description": "初めて入れた直後の案内の説明"
+    "message": "Web の PDF を開くたびに自動でルビを付けるには、［自動でルビを付けるようにする］を押してください。Chrome が「すべてのサイト」へのアクセスの許可を求めます（PDF を見分けるためだけに使います）。ルビの量は、あとからいつでも変えることができます（最初は、すべての漢字にルビが付きます）。",
+    "description": "初めて入れた直後の案内の説明（自動でルビを付けるのがオフのとき）"
+  },
+  "options_welcome_leadOn": {
+    "message": "Web の PDF のリンクを押すと、自動でルビ付きで開きます。ルビの量は、あとからいつでも変えることができます（最初は、すべての漢字にルビが付きます）。",
+    "description": "初めて入れた直後の案内の説明（自動でルビを付けるのがオンのとき）"
+  },
+  "options_welcome_turnOnAuto": {
+    "message": "自動でルビを付けるようにする",
+    "description": "初めて入れた直後の案内から、「PDF を開いたら、自動でルビを付ける」をオンにするボタン。押すと Chrome が許可を求める"
   },
   "options_welcome_trySample": {
     "message": "見本の PDF で試す",
@@ -974,8 +982,12 @@
     "description": "直した読みを保存できなかったときに出す"
   },
   "options_reset_button": {
-    "message": "設定を最初の状態にもどす（直した読みは残ります）",
+    "message": "設定を最初の状態にもどす",
     "description": "設定を既定に戻すボタン"
+  },
+  "options_reset_note": {
+    "message": "直したルビは残ります。",
+    "description": "設定を既定に戻すボタンの下の説明"
   },
   "options_reset_question": {
     "message": "設定を最初の状態にもどしますか？",

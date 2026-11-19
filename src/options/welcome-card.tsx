@@ -4,6 +4,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { SAMPLE_PDF_PATH } from '@/config';
 import { createLogger } from '@/log';
 
+import { turnOnAutoRedirect } from './auto-redirect-section';
 import { FeatureList } from './feature-list';
 import { message } from './message';
 import { openReader } from './open-pdf-section';
@@ -35,17 +36,35 @@ export function useWelcome(): [boolean, () => void] {
 
 /** 入れた直後の案内に渡すもの */
 interface WelcomeCardProps {
+  /** 「PDF を開いたら、自動でルビを付ける」がオンなら true */
+  readonly isAutoOn: boolean;
   /** 「閉じる」を押したときに呼ぶ */
   readonly onClose: () => void;
 }
 
 /**
- * 初めて入れた直後の案内。できることを並べ、スイッチのことを伝え、同梱した見本の PDF を開けるようにする。
- * @param props 閉じるときに呼ぶ関数
+ * 初めて入れた直後の案内。できることを並べ、自動でルビを付けるのをその場でオンにでき、同梱した見本の PDF を開けるようにする。
+ * 入れたときに自動で許可を求めることはできない（許可の画面は、押した操作の中でしか出ない）ので、ここで押してもらう。
+ * @param props 自動でルビを付けるかと、閉じるときに呼ぶ関数
+ * @param props.isAutoOn 「PDF を開いたら、自動でルビを付ける」がオンなら true
  * @param props.onClose 「閉じる」を押したときに呼ぶ
  * @returns 案内の場所
  */
-export function WelcomeCard({ onClose }: WelcomeCardProps): JSX.Element {
+export function WelcomeCard({ isAutoOn, onClose }: WelcomeCardProps): JSX.Element {
+  const [isAsking, setIsAsking] = useState(false);
+  const turnOn = (): void => {
+    if (isAsking) {
+      return;
+    }
+    setIsAsking(true);
+    turnOnAutoRedirect()
+      .catch((error: unknown) => {
+        log.error('入れた直後の案内から、自動でルビを付けるのをオンにするのに失敗しました', error);
+      })
+      .finally(() => {
+        setIsAsking(false);
+      });
+  };
   // 見本は拡張の中にあるので、この画面と同じ起点の URL で開ける
   const openSample = (): void => {
     openReader(new URL(`/${SAMPLE_PDF_PATH}`, location.href).href);
@@ -58,10 +77,19 @@ export function WelcomeCard({ onClose }: WelcomeCardProps): JSX.Element {
           {message('options_welcome_title')}
         </h2>
         <FeatureList titleId="welcome-features-title" />
-        <p class="note">{message('options_welcome_lead')}</p>
+        <p class="note">{message(isAutoOn ? 'options_welcome_leadOn' : 'options_welcome_lead')}</p>
       </div>
       <div class="row">
-        <button type="button" class="button button-primary" onClick={openSample}>
+        {!isAutoOn && (
+          <button type="button" class="button button-primary" disabled={isAsking} onClick={turnOn}>
+            {message('options_welcome_turnOnAuto')}
+          </button>
+        )}
+        <button
+          type="button"
+          class={isAutoOn ? 'button button-primary' : 'button button-outline'}
+          onClick={openSample}
+        >
           {message('options_welcome_trySample')}
         </button>
         <button type="button" class="button button-outline" onClick={onClose}>

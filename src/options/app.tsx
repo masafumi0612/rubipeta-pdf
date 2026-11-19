@@ -2,6 +2,7 @@ import type { JSX } from 'preact';
 import { useEffect } from 'preact/hooks';
 
 import { AboutSection } from './about-section';
+import { isAutoRedirectShownOn } from './auto-redirect';
 import { AutoRedirectSection } from './auto-redirect-section';
 import { useElement, useHostAccess, useJumpTarget, useSettings } from './hooks';
 import { message } from './message';
@@ -66,6 +67,9 @@ export function App(): JSX.Element {
       <main class="main">
         {isWelcomeShown && (
           <WelcomeCard
+            isAutoOn={
+              settings !== undefined && isAutoRedirectShownOn(settings.autoRedirect, hasHostAccess)
+            }
             onClose={() => {
               // 押したボタンが消えるので、画面の見出しに移る
               title.current?.focus();
