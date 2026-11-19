@@ -72,7 +72,6 @@ export function App(): JSX.Element {
             isAutoOn={
               settings !== undefined && isAutoRedirectShownOn(settings.autoRedirect, hasHostAccess)
             }
-            canAutoOpen={!isWeb}
             onClose={() => {
               // 押したボタンが消えるので、画面の見出しに移る
               title.current?.focus();

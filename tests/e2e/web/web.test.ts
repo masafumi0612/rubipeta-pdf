@@ -71,9 +71,7 @@ test('PDF を選んだとき、拡張と同じく、その場でルビが付く'
   await expect(sampleRuby(page).first()).toHaveText(SAMPLE.reading, { timeout: RUBY_TIMEOUT_MS });
 });
 
-test('設定の画面と初めての案内には、自動で開く場所と、PDF を選んで開く場所がない', async ({
-  page,
-}) => {
+test('設定の画面には、自動で開く場所と、PDF を選んで開く場所がない', async ({ page }) => {
   await page.goto('options.html');
   await expect(
     page.getByRole('heading', { name: 'ルビの量：ルビを付けない漢字の範囲' }),
@@ -82,9 +80,8 @@ test('設定の画面と初めての案内には、自動で開く場所と、PD
     page.getByRole('heading', { name: 'PDF を開いたら、自動でルビを付ける' }),
   ).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'PDF を選んでルビ付きで開く' })).toHaveCount(0);
-  // 初めて開いたときの案内にも、自動でルビを付けるボタンを出さない
+  // Web 版には「入れた」ことがないので、入れた直後の案内（自動でルビを付けるボタン）も出ない
   await expect(page.getByRole('button', { name: '自動でルビを付けるようにする' })).toHaveCount(0);
-  await expect(page.getByText('PDF は、リーダーの画面で選んで開きます。')).toBeVisible();
 });
 
 test('設定の画面で変えた設定は、読み込み直しても残る', async ({ page }) => {
