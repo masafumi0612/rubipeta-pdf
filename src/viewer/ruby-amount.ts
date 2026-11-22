@@ -4,7 +4,7 @@ import type { Level } from '@/text/types';
 
 /** バーのボタンの文字と、読み上げ用の名前 */
 export interface RubyAmountLabel {
-  /** 見えている文字（例：ルビ：3年までの漢字には付けない） */
+  /** 見えている文字（例：ルビ：4年生以上） */
   readonly text: string;
   /** 読み上げ用の名前。見えている文字に、押すと設定の画面が開くことを足す */
   readonly name: string;

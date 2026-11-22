@@ -460,12 +460,12 @@
     "description": "かたまりの向きの切り替えの名前の終わりに足す（読み上げ用）"
   },
   "common_level_all": {
-    "message": "すべての漢字に付ける",
-    "description": "ルビの量が「なし」（すべての漢字にルビ）のときの説明。リーダーのバーと設定の画面に出す"
+    "message": "全学年",
+    "description": "段階の名前。すべての漢字にルビを付ける。リーダーのバー・設定の画面の選択肢といまの設定に出す"
   },
   "common_level_grade": {
-    "message": "$GRADE$年までの漢字には付けない",
-    "description": "ルビの量が小学校の学年のときの説明。リーダーのバーと設定の画面に出す",
+    "message": "$GRADE$年生以上",
+    "description": "段階の名前。小学校のその学年から上で習う漢字にだけルビを付ける（前の学年までの漢字には付けない）。リーダーのバーと設定の画面に出す",
     "placeholders": {
       "grade": {
         "content": "$1",
@@ -474,8 +474,8 @@
     }
   },
   "common_level_middle": {
-    "message": "中$GRADE$までの漢字には付けない",
-    "description": "ルビの量が中学の目安のときの説明。リーダーのバーと設定の画面に出す",
+    "message": "中$GRADE$以上",
+    "description": "段階の名前。中学で習う漢字にだけルビを付ける（小学校の漢字には付けない）。リーダーのバーと設定の画面に出す",
     "placeholders": {
       "grade": {
         "content": "$1",
@@ -483,9 +483,19 @@
       }
     }
   },
+  "common_level_middleEstimate": {
+    "message": "中$GRADE$以上（目安）",
+    "description": "段階の名前。中学のその学年の目安から上の漢字にだけルビを付ける。リーダーのバーと設定の画面に出す",
+    "placeholders": {
+      "grade": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "common_level_joyo": {
-    "message": "常用漢字には付けない",
-    "description": "ルビの量が「常用漢字すべて」のときの説明。リーダーのバーと設定の画面に出す"
+    "message": "常用漢字を除くすべて",
+    "description": "段階の名前。常用漢字にはルビを付けず、それ以外の漢字にだけ付ける。リーダーのバーと設定の画面に出す"
   },
   "options_page_title": {
     "message": "ルビの設定 - ルビぺたPDF",
@@ -648,68 +658,36 @@
     "description": "サイトを読む許可をもらえなかったときに出す"
   },
   "options_amount_title": {
-    "message": "ルビの量：ルビを付けない漢字の範囲",
-    "description": "ルビの量（段階）を選ぶ場所の見出し"
+    "message": "ルビを付ける範囲",
+    "description": "ルビを付ける範囲（段階）を選ぶ場所の見出し"
   },
   "options_amount_lead": {
-    "message": "選んだ範囲までの漢字にはルビを付けず、それより上の漢字にだけルビを付けます。",
-    "description": "ルビの量を選ぶ場所の説明"
+    "message": "選んだ学年より前に習う漢字には、ルビを付けません。字の数は、ルビを付ける常用漢字の数です。",
+    "description": "ルビを付ける範囲を選ぶ場所の説明"
   },
   "options_amount_current": {
     "message": "いまの設定：",
-    "description": "ルビの量の説明の後ろに、今の段階（例：3年までの漢字には付けない）を続けて出す"
+    "description": "範囲の説明の後ろに、今の段階（例：4年生以上）を続けて出す"
   },
   "options_amount_elementary": {
     "message": "小学校（学年別漢字配当表）",
-    "description": "段階のまとまりの名前。小学1〜6年"
+    "description": "段階のまとまりの名前。全学年と、小学2〜6年生以上"
   },
   "options_amount_middleGroup": {
     "message": "中学・高校（常用漢字）",
-    "description": "段階のまとまりの名前。中1・中2の目安と、常用漢字すべて"
+    "description": "段階のまとまりの名前。中1以上、中2・中3以上の目安と、常用漢字を除くすべて"
   },
   "options_amount_middleNote": {
-    "message": "中1・中2は、よく使われる順に字数で区切った目安です。教科書の学年とは一致しません。",
+    "message": "中2・中3は、よく使われる順に字数で区切った目安です。教科書の学年とは一致しません。",
     "description": "中学・高校のまとまりの名前の横の注意"
   },
-  "options_amount_none": {
-    "message": "なし",
-    "description": "段階の選択肢。ルビを付けない漢字はない（すべての漢字にルビ）"
-  },
-  "options_amount_noneNote": {
-    "message": "すべての漢字にルビ",
-    "description": "段階の選択肢「なし」の下の説明"
-  },
-  "options_amount_grade": {
-    "message": "$GRADE$年まで",
-    "description": "段階の選択肢。小学校のその学年までに習う漢字にはルビを付けない",
-    "placeholders": {
-      "grade": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "options_amount_middle": {
-    "message": "中$GRADE$まで（目安）",
-    "description": "段階の選択肢。中学のその学年の目安までの漢字にはルビを付けない",
-    "placeholders": {
-      "grade": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
-  },
-  "options_amount_joyo": {
-    "message": "常用漢字すべて",
-    "description": "段階の選択肢。常用漢字にはルビを付けない"
-  },
   "options_amount_count": {
-    "message": "$COUNT$字",
-    "description": "段階の選択肢の下の説明。その段階までに習う漢字の数",
+    "message": "$COUNT$字に付ける",
+    "description": "段階の選択肢の下の説明。その段階でルビを付ける常用漢字の数",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "1,026"
+        "example": "1,110"
       }
     }
   },

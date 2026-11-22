@@ -517,6 +517,8 @@ input {
 .level-name {
   font-size: var(--font-size-large);
   font-weight: 700;
+  /* 「常用漢字を除くすべて」が折り返すとき、「除くす／べて」でなく言葉の切れ目で折り返す */
+  word-break: auto-phrase;
 }
 
 /* どの段階でもルビが付く文字の見本 */
