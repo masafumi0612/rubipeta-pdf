@@ -13,8 +13,8 @@ const UNMARKED_VERTICAL = 'word/word-vertical.pdf';
 const RUBY_TIMEOUT_MS = 15_000;
 /** 開き直していないかを見る印（リーダーの画面の中の変数名） */
 const NOT_RELOADED = '__notReloaded';
-/** 設定の画面で、ルビの量の場所の見出し */
-const AMOUNT_TITLE = 'ルビの量：ルビを付けない漢字の範囲';
+/** 設定の画面で、ルビを付ける範囲の場所の見出し */
+const AMOUNT_TITLE = 'ルビを付ける範囲';
 /** ルビの量の場所を上に出したとき、見出しが画面の上からどこまでにあればよいか（px） */
 const TOP_LIMIT_PX = 80;
 
@@ -71,20 +71,15 @@ test('段階を保存してからリーダーを開いたとき、バーにそ�
 
   await openReader(page, extensionId);
 
-  await expect(amountButton(page)).toHaveText('ルビ：3年までの漢字には付けない');
-  await expect(amountButton(page)).toHaveAccessibleName(
-    'ルビ：3年までの漢字には付けない（ルビの設定を開く）',
-  );
+  await expect(amountButton(page)).toHaveText('ルビ：4年生以上');
+  await expect(amountButton(page)).toHaveAccessibleName('ルビ：4年生以上（ルビの設定を開く）');
   await expect(amountButton(page)).toHaveAttribute('title', 'ルビの設定を開く');
 });
 
-test('何も保存していないとき、バーに「すべての漢字に付ける」が出る', async ({
-  page,
-  extensionId,
-}) => {
+test('何も保存していないとき、バーに「全学年」が出る', async ({ page, extensionId }) => {
   await openReader(page, extensionId);
 
-  await expect(amountButton(page)).toHaveText('ルビ：すべての漢字に付ける');
+  await expect(amountButton(page)).toHaveText('ルビ：全学年');
 });
 
 test('開いている間に段階を変えたとき、バーの文字が開き直さずに変わる', async ({
@@ -99,9 +94,9 @@ test('開いている間に段階を変えたとき、バーの文字が開き�
 
   await saveSettings(context, { level: 'joyo' });
 
-  await expect(amountButton(page)).toHaveText('ルビ：常用漢字には付けない');
+  await expect(amountButton(page)).toHaveText('ルビ：常用漢字を除くすべて');
   await saveSettings(context, { level: 'm2' });
-  await expect(amountButton(page)).toHaveText('ルビ：中2までの漢字には付けない');
+  await expect(amountButton(page)).toHaveText('ルビ：中3以上（目安）');
   expect(
     await page.evaluate((flag) => (globalThis as Record<string, unknown>)[flag], NOT_RELOADED),
   ).toBe(true);

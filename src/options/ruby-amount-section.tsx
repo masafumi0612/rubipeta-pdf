@@ -76,7 +76,7 @@ function LevelGroup(props: LevelGroupProps): JSX.Element {
               />
               <span class="level-text">
                 <span class="level-name">{text.name}</span>
-                <span class="level-note">{text.note}</span>
+                {text.note !== undefined && <span class="level-note">{text.note}</span>}
               </span>
             </label>
           );
@@ -86,7 +86,7 @@ function LevelGroup(props: LevelGroupProps): JSX.Element {
   );
 }
 
-/** 「ルビの量」の場所に渡すもの */
+/** 「ルビを付ける範囲」の場所に渡すもの */
 export interface RubyAmountSectionProps {
   /** 保存してある段階 */
   readonly level: Level;
@@ -95,7 +95,7 @@ export interface RubyAmountSectionProps {
 }
 
 /**
- * 「ルビの量：ルビを付けない漢字の範囲」の場所。段階を選ぶと、すぐ保存する。
+ * 「ルビを付ける範囲」の場所。段階を選ぶと、すぐ保存する。
  * @param props 保存してある段階と、見出しを受け取る関数
  * @param props.level 保存してある段階
  * @param props.titleRef 見出しを受け取る関数

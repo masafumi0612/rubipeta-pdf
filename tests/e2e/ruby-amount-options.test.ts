@@ -17,8 +17,8 @@ const NOT_RELOADED = '__notReloaded';
 const MAX_TABS = 40;
 /** 1年生で習う字（「11月号」などに出る。小学校のどの段階でもルビが消える） */
 const FIRST_GRADE_CHAR = '月';
-/** 小学校のまとまりの選択肢の数（なし・1〜6年）。この数だけ右に動くと、中1の目安に着く */
-const ELEMENTARY_LEVEL_COUNT = 7;
+/** 小学校のまとまりの選択肢の数（全学年・2〜6年生以上）。この数だけ右に動くと、中1以上に着く */
+const ELEMENTARY_LEVEL_COUNT = 6;
 
 /**
  * 設定の画面を開く。
@@ -74,14 +74,14 @@ test('段階の欄で矢印キーを押したとき、選んだ段階が保存�
   extensionId,
 }) => {
   await openOptions(page, extensionId);
-  await tabTo(page, page.getByRole('radio', { name: /^なし/ }));
+  await tabTo(page, page.getByRole('radio', { name: /^全学年/ }));
 
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('ArrowRight');
 
-  await expect(page.getByRole('radio', { name: /^3年まで/ })).toBeChecked();
-  await expect(page.getByText('いまの設定：3年までの漢字には付けない')).toBeVisible();
+  await expect(page.getByRole('radio', { name: /^4年生以上/ })).toBeChecked();
+  await expect(page.getByText('いまの設定：4年生以上')).toBeVisible();
   await expect.poll(async () => (await storedSettings(context)).level).toBe('g3');
 });
 
@@ -91,33 +91,33 @@ test('段階の欄で矢印キーを押したとき、小学校から中学・�
   extensionId,
 }) => {
   await openOptions(page, extensionId);
-  await tabTo(page, page.getByRole('radio', { name: /^なし/ }));
+  await tabTo(page, page.getByRole('radio', { name: /^全学年/ }));
 
   for (let count = 0; count < ELEMENTARY_LEVEL_COUNT; count += 1) {
     await page.keyboard.press('ArrowRight');
   }
 
-  await expect(page.getByRole('radio', { name: /^中1まで（目安）/ })).toBeChecked();
-  await expect(page.getByRole('radio', { name: /^中1まで（目安）/ })).toBeFocused();
-  await expect.poll(async () => (await storedSettings(context)).level).toBe('m1');
+  await expect(page.getByRole('radio', { name: /^中1以上/ })).toBeChecked();
+  await expect(page.getByRole('radio', { name: /^中1以上/ })).toBeFocused();
+  await expect.poll(async () => (await storedSettings(context)).level).toBe('g6');
 });
 
-test('段階の欄に、それぞれの段階までの字の数と、中学の目安の注意が出る', async ({
+test('段階の欄に、それぞれの段階でルビを付ける字の数と、中学の目安の注意が出る', async ({
   page,
   extensionId,
 }) => {
   await openOptions(page, extensionId);
 
-  await expect(page.getByRole('radio', { name: 'なし すべての漢字にルビ' })).toBeChecked();
-  await expect(page.getByRole('radio', { name: '1年まで 80字' })).toBeVisible();
-  await expect(page.getByRole('radio', { name: '6年まで 1,026字' })).toBeVisible();
-  await expect(page.getByRole('radio', { name: '常用漢字すべて 2,136字' })).toBeVisible();
+  await expect(page.getByRole('radio', { name: '全学年 2,136字に付ける' })).toBeChecked();
+  await expect(page.getByRole('radio', { name: '2年生以上 2,056字に付ける' })).toBeVisible();
+  await expect(page.getByRole('radio', { name: '中1以上 1,110字に付ける' })).toBeVisible();
+  await expect(page.getByRole('radio', { name: '常用漢字を除くすべて' })).toBeVisible();
   await expect(
     page.getByRole('group', { name: '中学・高校（常用漢字）' }),
   ).toHaveAccessibleDescription(
-    '中1・中2は、よく使われる順に字数で区切った目安です。教科書の学年とは一致しません。',
+    '中2・中3は、よく使われる順に字数で区切った目安です。教科書の学年とは一致しません。',
   );
-  await expect(page.getByText('いまの設定：すべての漢字に付ける')).toBeVisible();
+  await expect(page.getByText('いまの設定：全学年')).toBeVisible();
 });
 
 test('どの範囲でもルビが付く文字の見本が、ルビ付きで出る', async ({ page, extensionId }) => {
@@ -162,14 +162,12 @@ test('設定の画面でキーボードだけで段階を変えたとき、開�
   const options = await context.newPage();
   await openOptions(options, extensionId);
 
-  await tabTo(options, options.getByRole('radio', { name: /^なし/ }));
+  await tabTo(options, options.getByRole('radio', { name: /^全学年/ }));
   await options.keyboard.press('ArrowRight');
   await options.keyboard.press('ArrowRight');
   await options.keyboard.press('ArrowRight');
 
-  await expect(page.getByRole('button', { name: /^ルビ：/ })).toHaveText(
-    'ルビ：3年までの漢字には付けない',
-  );
+  await expect(page.getByRole('button', { name: /^ルビ：/ })).toHaveText('ルビ：4年生以上');
   await expect
     .poll(async () => (await rubyBases(page)).some((base) => base.includes(FIRST_GRADE_CHAR)))
     .toBe(false);
